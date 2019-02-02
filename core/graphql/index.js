@@ -20,12 +20,7 @@ module.exports = new graphql.GraphQLSchema(
 						id: { type: graphql.GraphQLInt }
 					},
 					resolve(source, arguments, context, info) {
-						return new Promise((resolve, reject) => {
-							db.query("SELECT id, name FROM type WHERE id=$1;", [arguments.id], (err, res) => {
-								if (err) reject(err);
-								resolve(res.rows[0])
-							})
-						});
+						return db.query("SELECT id, name FROM type WHERE id=$1;", [arguments.id]).then(res => res.rows[0]);
 					}
 				}
 			}
