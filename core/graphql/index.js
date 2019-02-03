@@ -1,35 +1,85 @@
-let graphql = require("graphql");
+let escape = require("pg-escape");
+let JoinMonster = require("join-monster").default;
+let { GraphQLSchema, GraphQLObjectType, GraphQLNonNull, GraphQLList, GraphQLInt, GraphQLString } = require("graphql");
+
 let db = require("../db");
 
-let typeType = new graphql.GraphQLObjectType({
-	name: "Type",
+let dishType = getJMObjectType({
+	name: "Dish",
+	uniqueKey: "id",
+	sqlTable: "dish",
+	description: "Dish is what can be cooked",
 	fields: {
-		id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) },
-		name: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) }
+		id: {
+			type: new GraphQLNonNull(GraphQLInt),
+			description: "Dish's unique id"
+		},
+		name: {
+			type: new GraphQLNonNull(GraphQLString),
+			description: "Dish's name"
+		},
+		recipe: {
+			type: GraphQLString,
+			description: "Dish's recipe"
+		}
 	}
 });
 
-module.exports = new graphql.GraphQLSchema(
+let typeType = getJMObjectType({
+	name: "Type",
+	uniqueKey: "id",
+	sqlTable: "type",
+	description: "Type is what kind of dish it is",
+	fields: {
+		id: {
+			type: new GraphQLNonNull(GraphQLInt),
+			description: "Type's unique id"
+		},
+		name: {
+			type: new GraphQLNonNull(GraphQLString),
+			description: "Type's name"
+		},
+		dishes: {
+			type: new GraphQLList(new GraphQLNonNull(dishType)),
+			description: "List of dishes of this type",
+			sqlJoin: (typeTable, dishTable, arguments) => `${typeTable}.id = ${dishTable}."typeId"`
+		}
+	}
+});
+
+module.exports = new GraphQLSchema(
 	{
-		query: new graphql.GraphQLObjectType({
+		query: new GraphQLObjectType({
 			name: "Query",
 			fields: {
+
 				type: {
 					type: typeType,
 					args: {
-						id: { type: graphql.GraphQLInt }
+						id: { type: GraphQLInt }
 					},
 					resolve(source, arguments, context, info) {
 						return db.query("SELECT id, name FROM type WHERE id=$1;", [arguments.id]).then(res => res.rows[0]);
 					}
+				},
+
+				types: {
+					type: new GraphQLList(new GraphQLNonNull(typeType)),
+					description: "List of all types of dishes",
+					resolve(source, arguments, context, info) {
+						return JoinMonster(info, {}, sql => {
+							return db.query(sql, []).then(res => res.rows);
+						});
+					}
 				}
+
 			}
 		}),
-		mutation: new graphql.GraphQLObjectType({
+		mutation: new GraphQLObjectType({
 			name: "Mutation",
 			fields: {
 				bar: {
-					type: new graphql.GraphQLNonNull(graphql.GraphQLString),
+					type: new GraphQLNonNull(GraphQLString),
 					resolve() {
 						return "bar"
 					}
@@ -38,3 +88,11 @@ module.exports = new graphql.GraphQLSchema(
 		})
 	}
 );
+
+function getJMObjectType(object) {
+	let keys = ["uniqueKey", "sqlTable"];
+	let newObjectType = new GraphQLObjectType(object);
+	newObjectType._typeConfig = keys.reduce((accumulator, key) => { accumulator[key] = object[key]; return accumulator; }, {});
+	// keys.forEach(key => newObjectType._typeConfig[key] = object[key]);
+	return newObjectType;
+}
