@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 app.use("/api", graphqlHTTP({
 	schema,
-	graphiql: true
+	graphiql: process.env.GRAPHIQL
 }));
 
 app.listen(process.env.PORT, () => console.log(`Listening at port ${process.env.PORT}`));
