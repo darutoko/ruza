@@ -4,6 +4,23 @@ let { GraphQLSchema, GraphQLObjectType, GraphQLNonNull, GraphQLList, GraphQLInt,
 
 let db = require("../db");
 
+let ingredientType = getJMObjectType({
+	name: "Ingredient",
+	uniqueKey: "id",
+	sqlTable: "ingredient",
+	description: "Ingredient is what dish consists of",
+	fields: {
+		id: {
+			type: new GraphQLNonNull(GraphQLInt),
+			description: "Ingredient's unique id"
+		},
+		name: {
+			type: new GraphQLNonNull(GraphQLString),
+			description: "Ingredient's name"
+		},
+	}
+});
+
 let dishType = getJMObjectType({
 	name: "Dish",
 	uniqueKey: "id",
@@ -21,6 +38,17 @@ let dishType = getJMObjectType({
 		recipe: {
 			type: GraphQLString,
 			description: "Dish's recipe"
+		},
+		ingredients: {
+			type: new GraphQLList(new GraphQLNonNull(ingredientType)),
+			description: "Dish's ingredients",
+			junction: {
+				sqlTable: `"dishIngredient"`,
+				sqlJoins: [
+					(dishTable, junctionTable, arguments) => `${dishTable}.id = ${junctionTable}."dishId"`,
+					(junctionTable, ingredientTanble, arguments) => `${junctionTable}."ingredientId" = ${ingredientTanble}.id`
+				]
+			}
 		}
 	}
 });
@@ -93,6 +121,5 @@ function getJMObjectType(object) {
 	let keys = ["uniqueKey", "sqlTable"];
 	let newObjectType = new GraphQLObjectType(object);
 	newObjectType._typeConfig = keys.reduce((accumulator, key) => { accumulator[key] = object[key]; return accumulator; }, {});
-	// keys.forEach(key => newObjectType._typeConfig[key] = object[key]);
 	return newObjectType;
 }
