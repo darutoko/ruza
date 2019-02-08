@@ -19,7 +19,21 @@
     </v-toolbar>
 
     <v-content>
+      <v-progress-linear app v-if="$apollo.loading" :indeterminate="true"></v-progress-linear>
+
       <v-container>
+        <v-layout mb-2>
+          <v-flex>
+            <v-alert
+              v-for="( alert, index ) in $store.state.alerts"
+              :key="index"
+              v-model="alert.isShown"
+              :type="alert.type"
+              dismissible
+            >{{ alert.message }}</v-alert>
+          </v-flex>
+        </v-layout>
+
         <router-view></router-view>
       </v-container>
     </v-content>

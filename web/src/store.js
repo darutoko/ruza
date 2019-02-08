@@ -4,13 +4,16 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  state: {
+	state: {
+		alerts: []
+	},
+	mutations: {
+		addAlert(state, payload) {
+			payload.isShown = true;
+			state.alerts.push(payload);
+		}
+	},
+	actions: {
 
-  },
-  mutations: {
-
-  },
-  actions: {
-
-  }
+	}
 })
