@@ -99,6 +99,16 @@ module.exports = new GraphQLSchema(
 							return db.query(sql, []).then(res => res.rows);
 						});
 					}
+				},
+
+				ingredients: {
+					type: new GraphQLList(new GraphQLNonNull(ingredientType)),
+					description: "List of all ingredients",
+					resolve(source, arguments, context, info) {
+						return JoinMonster(info, {}, sql => {
+							return db.query(sql, []).then(res => res.rows);
+						});
+					}
 				}
 
 			}
