@@ -16,6 +16,8 @@
     <v-toolbar app clipped-left dark color="blue darken-3">
       <v-toolbar-side-icon @click="toggleDrawer"></v-toolbar-side-icon>
       <v-toolbar-title>HMWA</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn @click.prevent="login">Login</v-btn>
     </v-toolbar>
 
     <v-content>
@@ -41,6 +43,9 @@
 </template>
 
 <script>
+import gql from "graphql-tag";
+import { onLogin, onLogout } from "./vue-apollo.js";
+
 export default {
   name: "App",
   components: {},
@@ -71,6 +76,26 @@ export default {
   methods: {
     toggleDrawer() {
       this.drawer.isShown = !this.drawer.isShown;
+    },
+    login() {
+      this.$apollo
+        .mutate({
+          mutation: gql`
+            mutation($username: String!, $password: String!) {
+              login(username: $username, password: $password) {
+                username
+                isAdmin
+              }
+            }
+          `,
+          variables: {
+            username: "admin",
+            password: "admin"
+          }
+        })
+        .then(result =>
+          onLogin(this.$apollo.provider.defaultClient, result.token)
+        );
     }
   }
 };

@@ -1,6 +1,6 @@
 let escape = require("pg-escape");
 let JoinMonster = require("join-monster").default;
-let { GraphQLSchema, GraphQLObjectType, GraphQLNonNull, GraphQLList, GraphQLInt, GraphQLString } = require("graphql");
+let { GraphQLSchema, GraphQLObjectType, GraphQLNonNull, GraphQLList, GraphQLBoolean, GraphQLInt, GraphQLString } = require("graphql");
 
 let db = require("../db");
 
@@ -75,6 +75,21 @@ let typeType = getJMObjectType({
 	}
 });
 
+let userType = new GraphQLObjectType({
+	name: "User",
+	description: "User of the app",
+	fields: {
+		username: {
+			type: new GraphQLNonNull(GraphQLString),
+			description: "User's name"
+		},
+		isAdmin: {
+			type: new GraphQLNonNull(GraphQLBoolean),
+			description: "User's rights are admin or not"
+		},
+	}
+});
+
 module.exports = new GraphQLSchema(
 	{
 		query: new GraphQLObjectType({
@@ -95,6 +110,7 @@ module.exports = new GraphQLSchema(
 					type: new GraphQLList(new GraphQLNonNull(typeType)),
 					description: "List of all types of dishes",
 					resolve(source, arguments, context, info) {
+						console.log(context.user);
 						return JoinMonster(info, {}, sql => {
 							return db.query(sql, []).then(res => res.rows);
 						});
@@ -116,10 +132,24 @@ module.exports = new GraphQLSchema(
 		mutation: new GraphQLObjectType({
 			name: "Mutation",
 			fields: {
-				bar: {
-					type: new GraphQLNonNull(GraphQLString),
-					resolve() {
-						return "bar"
+				login: {
+					type: new GraphQLNonNull(userType),
+					args: {
+						username: {
+							type: new GraphQLNonNull(GraphQLString)
+						},
+						password: {
+							type: new GraphQLNonNull(GraphQLString)
+						}
+					},
+					resolve(source, arguments, context, info) {
+						return new Promise((resolve, reject) => {
+							if (arguments.username === "admin" && arguments.password === "admin") {
+								resolve({ username: "admin", isAdmin: true });
+							} else {
+								reject("Invalid username or password");
+							}
+						});
 					}
 				}
 			}
