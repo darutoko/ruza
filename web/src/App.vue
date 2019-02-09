@@ -1,17 +1,6 @@
 <template>
   <v-app>
-    <v-navigation-drawer app clipped v-model="drawer.isShown">
-      <v-list>
-        <v-list-tile v-for="item in drawer.items" :key="item.name" :to="item.route">
-          <v-list-tile-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>{{ item.name }}</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-      </v-list>
-    </v-navigation-drawer>
+    <MainMenu :isShown="isMenuShown"/>
 
     <v-toolbar app clipped-left dark color="blue darken-3">
       <v-toolbar-side-icon @click="toggleDrawer"></v-toolbar-side-icon>
@@ -44,38 +33,22 @@
 
 <script>
 import gql from "graphql-tag";
-import { onLogin, onLogout } from "./vue-apollo.js";
+import { onLogin, onLogout } from "@/vue-apollo.js";
+import MainMenu from "@/components/MainMenu.vue";
 
 export default {
   name: "App",
-  components: {},
+  components: {
+    MainMenu
+  },
   data() {
     return {
-      drawer: {
-        isShown: null,
-        items: [
-          {
-            icon: "live_tv",
-            name: "Сериалы",
-            route: "/"
-          },
-          {
-            icon: "restaurant_menu",
-            name: "Еда",
-            route: "/food"
-          },
-          {
-            icon: "video_label",
-            name: "Видео",
-            route: "/video"
-          }
-        ]
-      }
+      isMenuShown: null
     };
   },
   methods: {
     toggleDrawer() {
-      this.drawer.isShown = !this.drawer.isShown;
+      this.isMenuShown = !this.isMenuShown;
     },
     login() {
       this.$apollo
