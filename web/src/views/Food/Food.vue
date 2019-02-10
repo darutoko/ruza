@@ -82,18 +82,18 @@ export default {
               }
             }
           }
-        }
-      `
-    },
-    ingredients: {
-      query: gql`
-        {
           ingredients {
             id
             name
           }
         }
-      `
+      `,
+      manual: true,
+      result({ data, loading }) {
+        if (loading) return;
+        this.types = data.types;
+        this.ingredients = data.ingredients;
+      }
     }
   },
   methods: {
