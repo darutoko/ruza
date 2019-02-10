@@ -5,12 +5,22 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
 	state: {
-		alerts: []
+		alerts: [],
+		user: {}
 	},
 	mutations: {
 		addAlert(state, payload) {
 			payload.isShown = true;
 			state.alerts.push(payload);
+		},
+		setUser(state, payload) {
+			state.user = {
+				username: payload.username,
+				isAdmin: payload.isAdmin
+			};
+		},
+		clearUser(state) {
+			state.user = {};
 		}
 	},
 	actions: {

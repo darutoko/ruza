@@ -7,6 +7,7 @@
       <v-toolbar-title>HMWA</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn @click.prevent="login">Login</v-btn>
+      <v-btn @click.prevent="logout">Logout</v-btn>
     </v-toolbar>
 
     <v-content>
@@ -66,10 +67,35 @@ export default {
             password: "admin"
           }
         })
-        .then(result =>
-          onLogin(this.$apollo.provider.defaultClient, result.token)
-        );
+        .then(result => {
+          this.$store.commit("setUser", this.parseToken(result.token));
+          onLogin(this.$apollo.provider.defaultClient, result.token);
+        });
+    },
+    logout() {
+      this.$store.commit("clearUser");
+      onLogout(this.$apollo.provider.defaultClient);
+    },
+    parseToken(token = "") {
+      let user = {};
+      let payload = token.split(".")[1];
+
+      if (!payload) return user;
+
+      try {
+        user = JSON.parse(atob(payload));
+      } catch {
+        user = {};
+      }
+
+      return user;
     }
+  },
+  created() {
+    this.$store.commit(
+      "setUser",
+      this.parseToken(localStorage.getItem("apollo-token"))
+    );
   }
 };
 </script>

@@ -1,7 +1,7 @@
 <template>
   <v-layout>
     <v-flex>
-      <v-expansion-panel>
+      <v-expansion-panel :value="0">
         <v-expansion-panel-content>
           <div slot="header">Ингредиенты</div>
 
