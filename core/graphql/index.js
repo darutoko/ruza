@@ -120,6 +120,9 @@ module.exports = new GraphQLSchema(
 				ingredients: {
 					type: new GraphQLList(new GraphQLNonNull(ingredientType)),
 					description: "List of all ingredients",
+					orderBy: {
+						name: "ASC"
+					},
 					resolve(source, arguments, context, info) {
 						return JoinMonster(info, {}, sql => {
 							return db.query(sql, []).then(res => res.rows);
