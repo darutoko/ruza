@@ -31,5 +31,10 @@ export default new Router({
 			name: 'video',
 			component: () => import('./views/About.vue')
 		},
+		{
+			path: '/403',
+			name: 'forbidden',
+			component: () => import('./views/403.vue')
+		},
 	]
 })
