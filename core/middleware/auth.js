@@ -19,7 +19,7 @@ function getUser(authorization = "") {
 };
 
 module.exports = (schema) => (req, res, next) => {
-	if (!req.headers.authorization && req.body && req.body.variables && req.body.variables.username && req.body.variables.password) {
+	if (req.body && req.body.variables && req.body.variables.username && req.body.variables.password) {
 		graphql(schema, req.body.query, {}, req, req.body.variables, req.body.operationName)
 			.then(result => {
 				result.token = jwt.sign(result.data.login, process.env.JWT_SECRET, { expiresIn: "12h" });

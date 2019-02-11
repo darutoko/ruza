@@ -14,6 +14,8 @@ export default new Vuex.Store({
 			state.alerts.push(payload);
 		},
 		setUser(state, payload) {
+			if (Math.round(Date.now() / 1000) > payload.exp) return;
+
 			state.user = {
 				username: payload.username,
 				isAdmin: payload.isAdmin
