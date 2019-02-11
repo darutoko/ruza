@@ -2,13 +2,7 @@
   <v-app>
     <MainMenu :isShown="isMenuShown"/>
 
-    <v-toolbar app clipped-left dark color="blue darken-3">
-      <v-toolbar-side-icon @click="toggleDrawer"></v-toolbar-side-icon>
-      <v-toolbar-title>HMWA</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn @click.prevent="login">Login</v-btn>
-      <v-btn @click.prevent="logout">Logout</v-btn>
-    </v-toolbar>
+    <MainToolbar v-on:toggle-drawer="toggleDrawer"/>
 
     <v-content>
       <v-progress-linear app v-if="$apollo.loading" :indeterminate="true"></v-progress-linear>
@@ -33,14 +27,17 @@
 </template>
 
 <script>
-import gql from "graphql-tag";
-import { onLogin, onLogout } from "@/vue-apollo.js";
 import MainMenu from "@/components/MainMenu.vue";
+import MainToolbar from "@/components/MainToolbar.vue";
+// TODO:
+// context menu for edit / add elements
+// views for edit / add elements
 
 export default {
   name: "App",
   components: {
-    MainMenu
+    MainMenu,
+    MainToolbar
   },
   data() {
     return {
@@ -50,52 +47,10 @@ export default {
   methods: {
     toggleDrawer() {
       this.isMenuShown = !this.isMenuShown;
-    },
-    login() {
-      this.$apollo
-        .mutate({
-          mutation: gql`
-            mutation($username: String!, $password: String!) {
-              login(username: $username, password: $password) {
-                username
-                isAdmin
-              }
-            }
-          `,
-          variables: {
-            username: "admin",
-            password: "admin"
-          }
-        })
-        .then(result => {
-          this.$store.commit("setUser", this.parseToken(result.token));
-          onLogin(this.$apollo.provider.defaultClient, result.token);
-        });
-    },
-    logout() {
-      this.$store.commit("clearUser");
-      onLogout(this.$apollo.provider.defaultClient);
-    },
-    parseToken(token = "") {
-      let user = {};
-      let payload = token.split(".")[1];
-
-      if (!payload) return user;
-
-      try {
-        user = JSON.parse(atob(payload));
-      } catch {
-        user = {};
-      }
-
-      return user;
     }
   },
   created() {
-    this.$store.commit(
-      "setUser",
-      this.parseToken(localStorage.getItem("apollo-token"))
-    );
+    this.$store.commit("setUser", localStorage.getItem("apollo-token"));
   }
 };
 </script>
