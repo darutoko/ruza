@@ -24,7 +24,14 @@ export default new Router({
 		{
 			path: '/food',
 			name: 'food',
-			component: () => import('./views/Food/Food.vue')
+			component: () => import('./views/Food/Food.vue'),
+			children: [
+				{
+					path: '',
+					name: 'food_list',
+					component: () => import('./views/Food/List.vue'),
+				}
+			]
 		},
 		{
 			path: '/video',

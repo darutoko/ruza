@@ -55,7 +55,7 @@
 import gql from "graphql-tag";
 
 export default {
-  name: "Food",
+  name: "List",
   data() {
     return {
       types: [],
