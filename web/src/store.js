@@ -6,7 +6,11 @@ Vue.use(Vuex)
 export default new Vuex.Store({
 	state: {
 		alerts: [],
-		user: {}
+		user: {},
+		menu: {
+			user: [],
+			admin: [],
+		}
 	},
 	mutations: {
 		addAlert(state, payload) {
@@ -26,6 +30,10 @@ export default new Vuex.Store({
 		},
 		clearUser(state) {
 			state.user = {};
+		},
+		setMenu(state, payload) {
+			state.menu.user = payload.user || [];
+			state.menu.admin = payload.admin || [];
 		}
 	},
 	actions: {

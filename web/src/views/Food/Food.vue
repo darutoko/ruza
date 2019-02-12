@@ -9,6 +9,20 @@
 <script>
 export default {
   name: "Food",
-  data() {}
+  data() {
+    return {
+      //
+    };
+  },
+  mounted() {
+    this.$store.commit("setMenu", {
+      admin: [
+        {
+          title: "Редактировать Ингредиенты",
+          to: { name: "food_ingredient" }
+        }
+      ]
+    });
+  }
 };
 </script>

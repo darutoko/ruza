@@ -110,7 +110,6 @@ module.exports = new GraphQLSchema(
 					type: new GraphQLList(new GraphQLNonNull(typeType)),
 					description: "List of all types of dishes",
 					resolve(source, arguments, context, info) {
-						console.log(context.user);
 						return JoinMonster(info, {}, sql => {
 							return db.query(sql, []).then(res => res.rows);
 						});
@@ -135,6 +134,7 @@ module.exports = new GraphQLSchema(
 		mutation: new GraphQLObjectType({
 			name: "Mutation",
 			fields: {
+
 				login: {
 					type: new GraphQLNonNull(userType),
 					args: {
@@ -154,7 +154,22 @@ module.exports = new GraphQLSchema(
 							}
 						});
 					}
+				},
+
+				addIngredient: {
+					type: new GraphQLNonNull(ingredientType),
+					args: {
+						name: {
+							type: new GraphQLNonNull(GraphQLString)
+						},
+					},
+					resolve(source, arguments, context, info) {
+						return db.query(`INSERT INTO ingredient (name, "createdAt", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING id, name;`, [
+							arguments.name
+						]).then(res => res.rows[0]);
+					}
 				}
+
 			}
 		})
 	}

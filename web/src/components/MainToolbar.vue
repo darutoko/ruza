@@ -10,6 +10,10 @@
       </v-btn>
 
       <v-list>
+        <v-list-tile v-for="(item, i) in $store.state.menu.admin" :key="i" :to="item.to">
+          <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+        </v-list-tile>
+
         <v-list-tile v-if="$store.state.user && $store.state.user.username" @click.prevent="logout">
           <v-list-tile-title>Выйти</v-list-tile-title>
         </v-list-tile>

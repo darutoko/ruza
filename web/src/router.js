@@ -23,13 +23,17 @@ export default new Router({
 		},
 		{
 			path: '/food',
-			name: 'food',
 			component: () => import('./views/Food/Food.vue'),
 			children: [
 				{
 					path: '',
 					name: 'food_list',
 					component: () => import('./views/Food/List.vue'),
+				},
+				{
+					path: 'ingredient',
+					name: 'food_ingredient',
+					component: () => import('./views/Food/Ingredient.vue'),
 				}
 			]
 		},
