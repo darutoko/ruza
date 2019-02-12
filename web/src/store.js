@@ -3,20 +3,6 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-function parseToken(payload) {
-	let user = {};
-	let token = (payload || "").split(".")[1];
-
-	if (!token) return user;
-
-	try {
-		user = JSON.parse(atob(token));
-	} catch {
-		user = {};
-	}
-
-	return user;
-}
 export default new Vuex.Store({
 	state: {
 		alerts: [],
@@ -45,4 +31,19 @@ export default new Vuex.Store({
 	actions: {
 
 	}
-})
+});
+
+function parseToken(payload) {
+	let user = {};
+	let token = (payload || "").split(".")[1];
+
+	if (!token) return user;
+
+	try {
+		user = JSON.parse(atob(token));
+	} catch {
+		user = {};
+	}
+
+	return user;
+}
