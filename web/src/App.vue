@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <MainMenu :isShown="isMenuShown"/>
+    <MainNav :isShown="isMenuShown"/>
 
     <MainToolbar v-on:toggle-drawer="toggleDrawer"/>
 
@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import MainMenu from "@/components/MainMenu.vue";
+import MainNav from "@/components/MainNav.vue";
 import MainToolbar from "@/components/MainToolbar.vue";
 // TODO:
 // context menu for edit / add elements
@@ -36,7 +36,7 @@ import MainToolbar from "@/components/MainToolbar.vue";
 export default {
   name: "App",
   components: {
-    MainMenu,
+    MainNav,
     MainToolbar
   },
   data() {
