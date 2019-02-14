@@ -9,8 +9,11 @@ let auth = require("./middleware/auth.js");
 
 let app = express();
 
-if (process.env.NODE_LOG) app.use((req, res, next) => { console.log(`${req.method} ${req.originalUrl}`); next() });
+// if (process.env.NODE_LOG) app.use((req, res, next) => { console.log(`${req.method} ${req.originalUrl}`); next(); });
+// app.use((req, res, next) => { setTimeout(() => next(), 2000) });
+
 app.use(bodyParser.json());
+app.use((req, res, next) => { console.log(`${req.method} ${req.originalUrl}`); console.log(req.body); next(); });
 app.use(express.static('public'));
 app.use("/api", auth(schema));
 app.use("/api", graphqlHTTP({

@@ -18,6 +18,10 @@ export default {
     this.$store.commit("setMenu", {
       admin: [
         {
+          title: "Редактировать Виды",
+          to: { name: "food_type" }
+        },
+        {
           title: "Редактировать Ингредиенты",
           to: { name: "food_ingredient" }
         }

@@ -34,7 +34,13 @@ export default new Router({
 					path: 'ingredient',
 					name: 'food_ingredient',
 					component: () => import('./views/Food/Ingredient.vue'),
+				},
+				{
+					path: 'type',
+					name: 'food_type',
+					component: () => import('./views/Food/Ingredient.vue'),
 				}
+
 			]
 		},
 		{
