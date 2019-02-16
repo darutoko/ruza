@@ -1,6 +1,6 @@
 <template>
   <v-toolbar app clipped-left dark color="blue darken-3">
-    <v-toolbar-side-icon @click="toggleDrawer"></v-toolbar-side-icon>
+    <v-toolbar-side-icon @click="sideIconClick"></v-toolbar-side-icon>
     <v-toolbar-title>HMWA</v-toolbar-title>
     <v-spacer></v-spacer>
 
@@ -31,8 +31,8 @@ import { onLogin, onLogout } from "@/vue-apollo.js";
 
 export default {
   methods: {
-    toggleDrawer() {
-      this.$emit("toggle-drawer");
+    sideIconClick() {
+      this.$emit("side-icon-click");
     },
     login() {
       this.$apollo

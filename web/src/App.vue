@@ -2,7 +2,7 @@
   <v-app>
     <MainNav :isShown="isMenuShown"/>
 
-    <MainToolbar v-on:toggle-drawer="toggleDrawer"/>
+    <MainToolbar v-on:side-icon-click="toggleDrawer"/>
 
     <v-content>
       <v-progress-linear app v-if="$apollo.loading" :indeterminate="true"></v-progress-linear>
