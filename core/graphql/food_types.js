@@ -32,6 +32,10 @@ let dishType = getJMObjectType({
 			type: new GraphQLNonNull(GraphQLString),
 			description: "Dish's name"
 		},
+		typeId: {
+			type: new GraphQLNonNull(GraphQLInt),
+			description: "Dish's type id"
+		},
 		recipe: {
 			type: GraphQLString,
 			description: "Dish's recipe"
