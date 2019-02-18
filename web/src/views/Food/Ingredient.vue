@@ -88,6 +88,7 @@
 
 <script>
 export default {
+  name: "Ingredient",
   data() {
     return {
       items: [],
@@ -229,7 +230,7 @@ export default {
       this.clearInput(this.update);
     },
     isInputValid(input) {
-      input.value.trim();
+      input.value = input.value.trim();
       input.error = false;
       input.errorMessage = "";
       if (!input.value) return false;
