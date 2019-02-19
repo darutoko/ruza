@@ -8,6 +8,24 @@ let { typeType, ingredientType, dishType } = require("./food_types");
 
 module.exports = {
 	query: {
+		dish: {
+			type: new GraphQLNonNull(dishType),
+			description: "One Dish",
+			args: {
+				id: {
+					type: new GraphQLNonNull(GraphQLInt)
+				}
+			},
+			where: (dishTable, arguments, context) => {
+				return escape(`${dishTable}.id = %s`, arguments.id);
+			},
+			resolve(source, arguments, context, info) {
+				return JoinMonster(info, {}, sql => {
+					return db.query(sql, []).then(res => res.rows);
+				});
+			}
+		},
+
 		types: {
 			type: new GraphQLList(new GraphQLNonNull(typeType)),
 			description: "List of all types of dishes",
@@ -48,6 +66,52 @@ module.exports = {
 			}
 		},
 
+		addDish: {
+			type: new GraphQLNonNull(GraphQLInt),
+			args: {
+				name: {
+					type: new GraphQLNonNull(GraphQLString)
+				},
+				typeId: {
+					type: new GraphQLNonNull(GraphQLInt)
+				},
+				recipe: {
+					type: GraphQLString
+				},
+				ingredients: {
+					type: new GraphQLList(new GraphQLNonNull(GraphQLInt))
+				}
+			},
+			async resolve(source, arguments, context, info) {
+				if (!context.user.isAdmin) return rejectedPromise("Access denied");
+
+				let sql = "";
+				let dish = {};
+				let client = await db.client();
+
+				try {
+					await client.query("BEGIN;");
+
+					sql = `INSERT INTO dish (name, "typeId", recipe, "createdAt", "updatedAt") VALUES ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING id, name, "typeId", recipe;`;
+					let result = await client.query(sql, [arguments.name, arguments.typeId, arguments.recipe]);
+					dish = result.rows[0];
+
+					sql = `INSERT INTO "dishIngredient" ("dishId", "ingredientId", "createdAt", "updatedAt") VALUES ` +
+						arguments.ingredients.map((value, i) => `(${dish.id}, $${i + 1}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`).join() + ";";
+					await client.query(sql, arguments.ingredients);
+
+					await client.query("COMMIT;");
+				} catch (error) {
+					await client.query("ROLLBACK;");
+					throw error;
+				} finally {
+					client.release();
+				}
+
+				return dish.id;
+			}
+		},
+
 		addType: {
 			type: new GraphQLNonNull(typeType),
 			args: {
@@ -79,6 +143,71 @@ module.exports = {
 					arguments.name,
 					arguments.id
 				]).then(res => res.rows[0]);
+			}
+		},
+
+		updateDish: {
+			type: new GraphQLNonNull(GraphQLInt),
+			args: {
+				id: {
+					type: new GraphQLNonNull(GraphQLInt)
+				},
+				name: {
+					type: new GraphQLNonNull(GraphQLString)
+				},
+				typeId: {
+					type: new GraphQLNonNull(GraphQLInt)
+				},
+				recipe: {
+					type: GraphQLString
+				},
+				ingredients: {
+					type: new GraphQLList(new GraphQLNonNull(GraphQLInt))
+				}
+			},
+			async resolve(source, arguments, context, info) {
+				if (!context.user.isAdmin) return rejectedPromise("Access denied");
+
+				let sql = "";
+				let updated = 0;
+				let ingredients = {};
+				let client = await db.client();
+
+				try {
+					await client.query("BEGIN;");
+
+					sql = `SELECT "ingredientId" AS id FROM "dishIngredient" WHERE "dishId" = $1;`;
+					let result = await client.query(sql, [arguments.id]);
+
+					ingredients.current = result.rows.map(row => row.id);
+					ingredients.add = arguments.ingredients.filter(ingredient => ingredients.current.indexOf(ingredient) < 0);
+					ingredients.remove = ingredients.current.filter(ingredient => arguments.ingredients.indexOf(ingredient) < 0);
+
+					if (ingredients.add.length) {
+						sql = `INSERT INTO "dishIngredient" ("dishId", "ingredientId", "createdAt", "updatedAt") VALUES ` +
+							ingredients.add.map((value, i) => `(${escape.string(arguments.id)}, $${i + 1}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`).join() + ";";
+						await client.query(sql, ingredients.add);
+					}
+					if (ingredients.remove.length) {
+						sql = `DELETE FROM "dishIngredient" WHERE "dishId" = $1 AND "ingredientId" IN (` +
+							ingredients.remove.map((value, i) => `$${i + 2}`).join() + ");"
+						await client.query(sql, [arguments.id, ...ingredients.remove]);
+					}
+
+					sql = `UPDATE dish SET (name, "typeId", recipe, "updatedAt") = ($1, $2, $3, CURRENT_TIMESTAMP) WHERE id = $4 RETURNING id;`;
+					result = await client.query(sql, [arguments.name, arguments.typeId, arguments.recipe, arguments.id]);
+
+					await client.query("COMMIT;");
+
+					updated = result.rowCount;
+				} catch (error) {
+					await client.query("ROLLBACK;");
+					throw error;
+				} finally {
+					client.release();
+				}
+
+				return updated;
 			}
 		},
 
@@ -117,6 +246,20 @@ module.exports = {
 						return db.query(`DELETE FROM ingredient WHERE id = $1;`, [arguments.id])
 							.then(res => res.rowCount);
 					});
+			}
+		},
+
+		deleteDish: {
+			type: new GraphQLNonNull(GraphQLInt),
+			args: {
+				id: {
+					type: new GraphQLNonNull(GraphQLInt)
+				},
+			},
+			resolve(source, arguments, context, info) {
+				if (!context.user.isAdmin) return rejectedPromise("Access denied");
+				return db.query(`DELETE FROM dish WHERE id = $1;`, [arguments.id])
+					.then(res => res.rowCount);
 			}
 		},
 

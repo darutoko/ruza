@@ -34,7 +34,7 @@ export default new Router({
 				{
 					path: 'dish/:id?',
 					name: 'food_dish',
-					// beforeEnter: adminOnly,
+					beforeEnter: adminOnly,
 					component: () => import('./views/Food/Dish.vue'),
 				},
 				{
