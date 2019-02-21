@@ -49,7 +49,6 @@ export default new Router({
 					beforeEnter: adminOnly,
 					component: () => import('./views/Food/Ingredient.vue'),
 				}
-
 			]
 		},
 		{

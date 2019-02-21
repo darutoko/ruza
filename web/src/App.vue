@@ -29,9 +29,6 @@
 <script>
 import MainNav from "@/components/MainNav.vue";
 import MainToolbar from "@/components/MainToolbar.vue";
-// TODO:
-// context menu for edit / add elements
-// views for edit / add elements
 
 export default {
   name: "App",

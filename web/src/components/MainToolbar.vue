@@ -26,7 +26,6 @@
 </template>
 
 <script>
-import gql from "graphql-tag";
 import { onLogin, onLogout } from "@/vue-apollo.js";
 
 export default {
@@ -37,7 +36,7 @@ export default {
     login() {
       this.$apollo
         .mutate({
-          mutation: gql`
+          mutation: this.$gql`
             mutation($username: String!, $password: String!) {
               login(username: $username, password: $password) {
                 username

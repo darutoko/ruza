@@ -2,7 +2,7 @@
   <v-layout>
     <v-flex>
       <v-form ref="form">
-        <v-text-field v-model="form.name" label="Название" :rules="stringRules" required></v-text-field>
+        <v-text-field v-model.trim="form.name" label="Название" :rules="stringRules" required></v-text-field>
         <v-select
           v-model="form.typeId"
           :items="types"
@@ -126,13 +126,15 @@ export default {
           variables: {
             ...this.form
           }
-        });
+				});
+
         this.$store.commit("addAlert", {
           type: "success",
           message: `Блюдо ${this.form.name} добавлено с ID ${
             result.data.addDish
           }`
-        });
+				});
+				this.resetForm();
       } catch (error) {
         this.$store.commit("addAlert", {
           type: "error",
@@ -153,11 +155,14 @@ export default {
             id: this.$route.params.id
           }
         });
-        this.$store.commit("addAlert", {
-          type: "success",
-          message: `Блюдо ${this.form.name} обновлено`
-        });
-        this.$router.replace({ name: "food" });
+
+        if (result.data.updateDish) {
+          this.$store.commit("addAlert", {
+            type: "success",
+            message: `Блюдо ${this.form.name} обновлено`
+          });
+          this.$router.replace({ name: "food_list" });
+        }
       } catch (error) {
         this.$store.commit("addAlert", {
           type: "error",
@@ -175,7 +180,7 @@ export default {
       this.$refs.form.resetValidation();
     },
     stringRequired(value) {
-      if (value.trim()) return true;
+      if (value) return true;
       return "Поле необходимо заполнить";
     },
     numberRequired(value) {
