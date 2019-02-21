@@ -183,6 +183,7 @@ export default {
             name: this.update.value
           }
         });
+				
         this.update.item.name = result.data[this.updateName].name;
       } catch (error) {
         console.log(error.message);
@@ -203,7 +204,7 @@ export default {
             id: this.remove.item.id
           }
         });
-				
+
         if (result.data[this.deleteName])
           this.items = this.items.filter(
             item => item.id != this.remove.item.id
