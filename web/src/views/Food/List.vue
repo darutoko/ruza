@@ -75,29 +75,23 @@
         </v-tab-item>
       </v-tabs>
 
-      <v-dialog v-model="remove.dialog" persistent max-width="290">
-        <v-card>
-          <v-card-title class="error white--text">Внимание!</v-card-title>
-          <v-card-text>Подтвердите удаление блюда "{{ remove.dish.name }}"</v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="error" outline @click="clearDelete()">Отмена</v-btn>
-            <v-btn
-              color="error"
-              :loading="remove.loading"
-              :disabled="remove.loading"
-              @click="deleteDish"
-            >Подтвердить</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+      <DialogDelete
+        :shown="remove.dialog"
+        :loading="remove.loading"
+        :name="remove.dish.name"
+        @confirm-click="deleteDish"
+        @cancel-click="clearDelete()"
+      />
     </v-flex>
   </v-layout>
 </template>
 
 <script>
+import DialogDelete from "@/components/DialogDelete.vue";
+
 export default {
   name: "List",
+  components: { DialogDelete },
   data() {
     return {
       types: [],

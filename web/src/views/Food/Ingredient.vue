@@ -10,7 +10,7 @@
         <v-flex xs7 sm10>
           <v-text-field
             label="Добавить"
-            v-model="add.value"
+            v-model.trim="add.value"
             :error="add.error"
             :error-messages="add.errorMessage"
             :loading="add.loading"
@@ -28,7 +28,7 @@
               <v-flex xs8 md10 v-if="item.id == update.item.id">
                 <v-text-field
                   label="Изменить"
-                  v-model="update.value"
+                  v-model.trim="update.value"
                   :error="update.error"
                   :error-messages="update.errorMessage"
                   :full-width="true"
@@ -66,29 +66,24 @@
           </v-container>
         </v-card>
       </v-hover>
-      <v-dialog v-model="remove.dialog" persistent max-width="290">
-        <v-card>
-          <v-card-title class="error white--text">Внимание!</v-card-title>
-          <v-card-text>Подтвердите удаление элемента "{{ remove.item.name }}"</v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="error" outline @click="clearDelete()">Отмена</v-btn>
-            <v-btn
-              color="error"
-              :loading="remove.loading"
-              :disabled="remove.loading"
-              @click="deleteItem"
-            >Подтвердить</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+
+      <DialogDelete
+        :shown="remove.dialog"
+        :loading="remove.loading"
+        :name="remove.item.name"
+        @confirm-click="deleteItem"
+        @cancel-click="clearDelete()"
+      />
     </v-flex>
   </v-layout>
 </template>
 
 <script>
+import DialogDelete from "@/components/DialogDelete.vue";
+
 export default {
   name: "Ingredient",
+  components: { DialogDelete },
   data() {
     return {
       items: [],
@@ -196,8 +191,6 @@ export default {
       this.hideUpdateInput();
     },
     async deleteItem(e) {
-      e.preventDefault();
-
       this.remove.loading = true;
       try {
         let result = await this.$apollo.mutate({
@@ -230,7 +223,6 @@ export default {
       this.clearInput(this.update);
     },
     isInputValid(input) {
-      input.value = input.value.trim();
       input.error = false;
       input.errorMessage = "";
       if (!input.value) return false;
