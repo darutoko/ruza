@@ -203,6 +203,7 @@ export default {
             id: this.remove.item.id
           }
         });
+				
         if (result.data[this.deleteName])
           this.items = this.items.filter(
             item => item.id != this.remove.item.id
