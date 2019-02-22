@@ -29,7 +29,8 @@ export default {
           title: "Редактировать Ингредиенты",
           to: { name: "food_ingredient" }
         }
-      ]
+			],
+			user: []
     });
   }
 };
