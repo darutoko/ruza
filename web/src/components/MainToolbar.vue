@@ -10,14 +10,17 @@
       </v-btn>
 
       <v-list>
-        <v-list-tile v-for="(item, i) in $store.state.menu.admin" :key="i" :to="item.to">
+        <v-list-tile v-for="(item, i) in adminItems" :key="i" :to="item.to">
           <v-list-tile-title>{{ item.title }}</v-list-tile-title>
         </v-list-tile>
 
         <v-list-tile v-if="$store.state.user && $store.state.user.username" @click.prevent="logout">
           <v-list-tile-title>Выйти</v-list-tile-title>
         </v-list-tile>
-        <v-list-tile v-else @click.prevent="login">
+        <!-- <v-list-tile v-else @click.prevent="login">
+          <v-list-tile-title>Войти</v-list-tile-title>
+        </v-list-tile> -->
+        <v-list-tile v-else :to="{name: 'login'}">
           <v-list-tile-title>Войти</v-list-tile-title>
         </v-list-tile>
       </v-list>
@@ -26,33 +29,22 @@
 </template>
 
 <script>
-import { onLogin, onLogout } from "@/vue-apollo.js";
+import { onLogout } from "@/vue-apollo.js";
 
 export default {
+	name: "MainToolbar",
+	computed: {
+		adminItems() {
+			if (this.$store.state.user && this.$store.state.user.isAdmin) {
+				return this.$store.state.menu.admin
+			} else {
+				return []
+			}
+		}
+	},
   methods: {
     sideIconClick() {
       this.$emit("side-icon-click");
-    },
-    login() {
-      this.$apollo
-        .mutate({
-          mutation: this.$gql`
-            mutation($username: String!, $password: String!) {
-              login(username: $username, password: $password) {
-                username
-                isAdmin
-              }
-            }
-          `,
-          variables: {
-            username: "admin",
-            password: "admin"
-          }
-        })
-        .then(result => {
-          this.$store.commit("setUser", result.token);
-          onLogin(this.$apollo.provider.defaultClient, result.token);
-        });
     },
     logout() {
       this.$store.commit("clearUser");
