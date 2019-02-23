@@ -22,10 +22,13 @@ module.exports = (schema) => (req, res, next) => {
 	if (req.body && req.body.variables && req.body.variables.username && req.body.variables.password) {
 		graphql(schema, req.body.query, {}, req, req.body.variables, req.body.operationName)
 			.then(result => {
-				result.token = jwt.sign(result.data.login, process.env.JWT_SECRET, { expiresIn: "12h" });
-
-				res.status(200);
-				res.set("Authorization", `Bearer ${result.token}`);
+				if (result.errors) {
+					res.status(500);
+				} else {
+					result.token = jwt.sign(result.data.login, process.env.JWT_SECRET, { expiresIn: "12h" }); 
+					res.status(200);
+					res.set("Authorization", `Bearer ${result.token}`);
+				}
 				res.json(result);
 			})
 			.catch(error => next(error));
