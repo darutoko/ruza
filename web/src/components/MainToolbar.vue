@@ -17,9 +17,6 @@
         <v-list-tile v-if="$store.state.user && $store.state.user.username" @click.prevent="logout">
           <v-list-tile-title>Выйти</v-list-tile-title>
         </v-list-tile>
-        <!-- <v-list-tile v-else @click.prevent="login">
-          <v-list-tile-title>Войти</v-list-tile-title>
-        </v-list-tile> -->
         <v-list-tile v-else :to="{name: 'login'}">
           <v-list-tile-title>Войти</v-list-tile-title>
         </v-list-tile>
