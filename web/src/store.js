@@ -5,8 +5,9 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
 	state: {
-		alerts: [],
 		user: {},
+		alerts: [],
+		loading: 0,
 		menu: {
 			user: [],
 			admin: [],
@@ -34,7 +35,9 @@ export default new Vuex.Store({
 		setMenu(state, payload) {
 			state.menu.user = payload.user || [];
 			state.menu.admin = payload.admin || [];
-		}
+		},
+		loadingStop(state)  { state.loading-- },
+		loadingStart(state) { state.loading++ },
 	},
 	actions: {
 

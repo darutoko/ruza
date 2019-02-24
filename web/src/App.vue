@@ -5,7 +5,7 @@
     <MainToolbar v-on:side-icon-click="toggleDrawer"/>
 
     <v-content>
-      <v-progress-linear app v-if="$apollo.loading" :indeterminate="true"></v-progress-linear>
+      <v-progress-linear app v-if="isLoading" :indeterminate="true"></v-progress-linear>
 
       <v-container>
         <v-layout mb-2>
@@ -40,7 +40,10 @@ export default {
     return {
       isMenuShown: null
     };
-  },
+	},
+	computed: {
+		isLoading() { return this.$store.state.loading > 0 }
+	},
   methods: {
     toggleDrawer() {
       this.isMenuShown = !this.isMenuShown;

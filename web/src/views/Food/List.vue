@@ -38,20 +38,20 @@
                   icon
                   small
                   ripple
-                  v-if="hover && isAdmin"
                   class="my-0"
                   title="Изменить"
+                  v-if="isAdmin && hover"
                   :to="{name: 'food_dish', params: {id: dish.id}}"
                 >
                   <v-icon color="grey lighten-5">edit</v-icon>
                 </v-btn>
                 <v-btn
-                  v-if="hover && isAdmin"
                   icon
                   ripple
                   small
                   class="my-0"
                   title="Удалить"
+                  v-if="isAdmin && hover"
                   @click.stop="confirmDelete(dish, type)"
                 >
                   <v-icon color="error">delete</v-icon>
@@ -112,6 +112,7 @@ export default {
   },
   methods: {
     async fetchList() {
+			this.$store.commit("loadingStart");
       try {
         let result = await this.$apollo.query({
           query: this.$gql` {
@@ -138,7 +139,8 @@ export default {
         this.ingredients = result.data.ingredients;
       } catch (error) {
         console.log(error);
-      }
+			}
+			this.$store.commit("loadingStop");
     },
     filterAll() {
       this.filter = this.ingredients.map(ingredient => ingredient.name);

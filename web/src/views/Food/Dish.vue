@@ -65,44 +65,46 @@ export default {
     };
   },
   methods: {
-    fetchData() {
-      console.log("Fetching Data", this.$route.params.id);
+    async fetchData() {
       let prefix = "{";
-      if (this.$route.params.id)
-        prefix = `query($id: Int!) {
-			dish(id: $id) {
-				id
-				name
-				typeId
-				recipe
-				ingredients {
+      if (this.$route.params.id) prefix = `query($id: Int!) {
+				dish(id: $id) {
 					id
-				}
-			}`;
-
-      this.$apollo
-        .query({
-          query: this.$gql`${prefix}
-					types {
-						id
-						name
-					}
+					name
+					typeId
+					recipe
 					ingredients {
 						id
-						name
 					}
-				}`,
-          variables: {
-            id: this.$route.params.id
-          }
-        })
-        .then(result => {
-          if (this.$route.params.id) this.dish = result.data.dish;
-          this.types = result.data.types;
-          this.ingredients = result.data.ingredients;
-          this.resetForm();
-        })
-        .catch(error => console.log(error));
+				}`;
+
+			this.$store.commit("loadingStart");
+			try {
+				let result = await this.$apollo.query({
+						query: this.$gql`${prefix}
+							types {
+								id
+								name
+							}
+							ingredients {
+								id
+								name
+							}
+						}`,
+						variables: {
+							id: this.$route.params.id
+						}
+				});
+
+				if (this.$route.params.id) this.dish = result.data.dish;
+				this.types = result.data.types;
+				this.ingredients = result.data.ingredients;
+
+				this.resetForm();
+			} catch (error) {
+				console.log(error);
+			}
+			this.$store.commit("loadingStop");
     },
     async saveDish() {
       if (!this.$refs.form.validate()) return;
@@ -121,8 +123,7 @@ export default {
           mutation: this.$gql`
 						mutation($name: String!, $typeId: Int!, $recipe: String, $ingredients: [Int!]) {
 							addDish(name: $name, typeId: $typeId, recipe: $recipe, ingredients: $ingredients)
-						}
-					`,
+						}`,
           variables: {
             ...this.form
           }
@@ -130,9 +131,7 @@ export default {
 
         this.$store.commit("addAlert", {
           type: "success",
-          message: `Блюдо ${this.form.name} добавлено с ID ${
-            result.data.addDish
-          }`
+          message: `Блюдо ${this.form.name} добавлено с ID ${result.data.addDish}`
 				});
 				this.resetForm();
       } catch (error) {
@@ -148,8 +147,7 @@ export default {
           mutation: this.$gql`
 						mutation($id: Int!, $name: String!, $typeId: Int!, $recipe: String, $ingredients: [Int!]) {
 							updateDish(id: $id, name: $name, typeId: $typeId, recipe: $recipe, ingredients: $ingredients)
-						}
-					`,
+						}`,
           variables: {
             ...this.form,
             id: this.$route.params.id
