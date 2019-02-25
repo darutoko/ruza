@@ -191,7 +191,7 @@ export default {
 
       this.hideUpdateInput();
     },
-    async deleteItem(e) {
+    async deleteItem() {
       this.remove.loading = true;
       try {
         let result = await this.$apollo.mutate({

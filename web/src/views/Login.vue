@@ -32,10 +32,10 @@ export default {
   name: "Login",
   data() {
     return {
-            username: "admin",
-            password: "admin",
-			// username: "",
-			// password: "",
+            // username: "admin",
+            // password: "admin",
+			username: "",
+			password: "",
 			isLoading: false,
 			usernameRules: [this.stringRequired],
 			passwordRules: [this.stringRequired]
