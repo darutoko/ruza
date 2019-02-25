@@ -1,0 +1,1 @@
+CreateObject("Wscript.Shell").Run "C:\Users\Alex\Web\sura\start.bat",0,True
