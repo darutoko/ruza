@@ -31,7 +31,7 @@
         <v-tab-item v-for="type in types" :key="type.id">
           <v-card v-for="dish in filteredDishes(type.dishes)" :key="dish.id">
             <v-hover>
-              <v-card-title slot-scope="{hover}" class="blue darken-2 white--text">
+              <v-card-title slot-scope="{hover}" class="blue darken-2 white--text pa-2">
                 <div class="headline">{{ dish.name }}</div>
                 <v-spacer></v-spacer>
                 <v-btn
