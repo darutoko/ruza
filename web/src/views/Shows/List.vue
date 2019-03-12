@@ -42,7 +42,7 @@
 							class="my-0"
 							title="Изменить"
 							v-if="isAdmin && hover"
-							:to="{name: 'food_dish', params: {}}">
+							:to="{name: 'shows_show', params: {id: show.id}}">
 							<v-icon color="grey lighten-5">edit</v-icon>
 						</v-btn>
 						<v-btn

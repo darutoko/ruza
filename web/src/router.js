@@ -18,6 +18,12 @@ export default new Router({
 					name: 'shows_list',
 					component: () => import('./views/Shows/List.vue'),
 				},
+				{
+					path: 'shows/:id',
+					name: 'shows_show',
+					beforeEnter: adminOnly,
+					component: () => import('./views/Shows/Show.vue'),
+				},
 			]
 		},
 		{
