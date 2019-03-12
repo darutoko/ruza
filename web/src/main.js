@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import gql from "graphql-tag";
 import './plugins/vuetify'
+import './plugins/graphql-query'
 import App from './App.vue'
 import router from './router'
 import store from './store'
