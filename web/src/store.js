@@ -14,6 +14,12 @@ export default new Vuex.Store({
 		}
 	},
 	mutations: {
+		success(state, message) {
+			state.alerts.push({ type: "success", isShown: true, message });
+		},
+		error(state, message) {
+			state.alerts.push({ type: "error", isShown: true, message });
+		},
 		addAlert(state, payload) {
 			payload.isShown = true;
 			state.alerts.push(payload);
@@ -38,6 +44,10 @@ export default new Vuex.Store({
 		},
 		loadingStop(state)  { state.loading-- },
 		loadingStart(state) { state.loading++ },
+		loading(state, isLoading) {
+			if (isLoading === true) state.loading++
+			if (isLoading === false) state.loading--
+		},
 	},
 	actions: {
 
