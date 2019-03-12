@@ -1,5 +1,5 @@
 module.exports = {
-	textRquired(value) {
+	textRequired(value) {
 		if (value) return true;
 		return "Поле необходимо заполнить";
 	},

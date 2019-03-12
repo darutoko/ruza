@@ -87,7 +87,7 @@
 
 <script>
 import DialogDelete from "@/components/DialogDelete.vue";
-import { textRquired } from "@/utils/rules.js";
+import { textRequired } from "@/utils/rules.js";
 
 export default {
 	name: "List",
@@ -97,7 +97,7 @@ export default {
 			add: {
 				value: "",
 				loading: false,
-				rules: [textRquired, this.uniqueShow]
+				rules: [textRequired, this.uniqueShow]
 			},
 			remove: {
 				index: null,
