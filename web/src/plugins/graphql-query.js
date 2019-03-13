@@ -16,12 +16,14 @@ let GraphQLQuery = {
 						if (request.query) {
 							result = await this.$apollo.query({
 								query: gql(request.query),
-								variables: request.variables
+								variables: request.variables,
+								fetchPolicy: request.fetchPolicy
 							});
 						} else if (request.mutation) {
 							result = await this.$apollo.mutate({
 								mutation: gql(request.mutation),
-								variables: request.variables
+								variables: request.variables,
+								fetchPolicy: request.fetchPolicy
 							});
 						} else {
 							throw "Unknown query type";

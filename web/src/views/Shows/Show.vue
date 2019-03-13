@@ -91,6 +91,7 @@ export default {
 				variables: {
 					id: this.$route.params.id
 				},
+				fetchPolicy: "no-cache",
 			},
 			data => {
 				this.show = data.show;
@@ -108,7 +109,6 @@ export default {
 
 			if (Object.keys(variables).length <= 1) return alert("Нет изменений в данных");
 
-			console.log(variables);
 			this.graphql({
 				mutation: "mutation($id: Int!, $current_season: Int, $search: String, $uploaded: String, $directory: String){ updateShow(id: $id, current_season: $current_season, search: $search, uploaded: $uploaded, directory: $directory) }",
 				variables,
