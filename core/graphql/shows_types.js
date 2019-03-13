@@ -92,7 +92,8 @@ let showType = getJMObjectType({
 });
 
 module.exports = {
-	showType
+	showType,
+	seasonType
 }
 
 function dateToString(date) {

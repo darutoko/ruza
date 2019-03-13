@@ -5,13 +5,49 @@ let { GraphQLList, GraphQLNonNull, GraphQLInt, GraphQLString } = require("graphq
 
 let db = require("../db");
 let { rejectedPromise } = require("./tools");
-let { showType } = require("./shows_types");
+let { showType, seasonType } = require("./shows_types");
 
 module.exports = {
 	query: {
+		show: {
+			type: new GraphQLNonNull(showType),
+			description: "One Show",
+			args: {
+				id: {
+					type: new GraphQLNonNull(GraphQLInt)
+				}
+			},
+			where: (showTable, arguments, context) => {
+				return escape(`${showTable}.id = %s`, arguments.id);
+			},
+			resolve(source, arguments, context, info) {
+				return JoinMonster(info, {}, sql => {
+					return db.query(sql, []).then(res => res.rows);
+				});
+			}
+		},
+
 		shows: {
 			type: new GraphQLList(new GraphQLNonNull(showType)),
 			description: "List of all shows",
+			resolve(source, arguments, context, info) {
+				return JoinMonster(info, {}, sql => {
+					return db.query(sql, []).then(res => res.rows);
+				}, {dialect:'pg'});
+			}
+		},
+
+		seasons: {
+			type: new GraphQLList(new GraphQLNonNull(seasonType)),
+			description: "List of all seasons of a show",
+			args: {
+				show_id: {
+					type: new GraphQLNonNull(GraphQLInt)
+				}
+			},
+			where: (seasonTable, arguments, context) => {
+				return escape(`${seasonTable}.show_id = %s`, arguments.show_id);
+			},
 			resolve(source, arguments, context, info) {
 				return JoinMonster(info, {}, sql => {
 					return db.query(sql, []).then(res => res.rows);
@@ -73,13 +109,12 @@ VALUES ($1, $2, $3, $4, $2, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING 
 					show = result.rows[0];
 					if (show.id != arguments.id) return rejectedPromise("Can't find show with id: " + arguments.id);
 
-					// let {browser, page} = await launchPuppeteer();
-					// await page.goto(`${show.url}episodes?season=${show.current_season}`);
-					// let dates = await page.$$eval(".airdate", divs => divs.map(div => div.textContent.trim()));
-					// console.log("dates: " + dates);
-					// await browser.close();
-					let dates = ["28 Jan. 2019", "2 Feb. 2019"];
-					// let dates = ["16 Oct. 2018", "23 Oct. 2018", "30 Oct. 2018", "13 Nov. 2018", "20 Nov. 2018", "27 Nov. 2018", "4 Dec. 2018", "11 Dec. 2018", "8 Jan. 2019", "15 Jan. 2019", "22 Jan. 2019", "12 Feb. 2019", "19 Feb. 2019", "26 Feb. 2019", "5 Mar. 2019", "19 Mar. 2019", "26 Mar. 2019", "", "", ""];
+					let {browser, page} = await launchPuppeteer();
+					await page.goto(`${show.url}episodes?season=${show.current_season}`);
+					let dates = await page.$$eval(".airdate", divs => divs.map(div => div.textContent.trim()));
+					console.log("dates: " + dates);
+					await browser.close();
+					
 					let today = new Date;
 					let directory = "D:\\Download\\!Video\\" + show.title + " S" + show.current_season.toString().padStart(2, '0');
 					let episodes = {
@@ -113,6 +148,55 @@ RETURNING *;`,
 				}
 
 				return show;
+			}
+		},
+
+		updateShow: {
+			type: new GraphQLNonNull(GraphQLInt),
+			args: {
+				id: {
+					type: new GraphQLNonNull(GraphQLInt)
+				},
+				current_season: {
+					type: GraphQLInt
+				},
+				search: {
+					type: GraphQLString
+				},
+				uploaded: {
+					type: GraphQLString
+				},
+				directory: {
+					type: GraphQLString
+				},
+			},
+			async resolve(source, arguments, context, info) {
+				if (!context.user.isAdmin) return rejectedPromise("Access denied");
+				if (Object.keys(arguments).length <= 1) return 1;
+
+				try {
+					let result, show, values = [], keys = Object.keys(arguments).filter(key => ["current_season", "search", "uploaded"].includes(key));
+
+					if (keys.length) {
+						values = keys.map(key => arguments[key]);
+						result = await db.query(`UPDATE public.show SET ${keys.map((key, i) => key + " = $"+(i+1)).join(", ")} WHERE id = \$${keys.length + 1} RETURNING *;`,
+							[ ...values, arguments.id ]);
+						show = result.rows[0];
+					}
+
+					if (arguments.directory) {
+						if (!show) {
+							result = await db.query(`SELECT * FROM public.show WHERE id = $1;`, [ arguments.id ]);
+							show = result.rows[0];
+						}
+						result = await db.query(`UPDATE public.season SET directory = $1 WHERE show_id = $2 AND num = $3;`, [ arguments.directory, show.id, show.current_season ]);
+					}
+				} catch (error) {
+					console.log(error);
+					throw error;
+				}
+
+				return 1;
 			}
 		},
 
