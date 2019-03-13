@@ -35,25 +35,19 @@
                 <div class="headline">{{ dish.name }}</div>
                 <v-spacer></v-spacer>
                 <v-btn
-                  icon
-                  small
-                  ripple
+                  icon small ripple
                   class="my-0"
                   title="Изменить"
                   v-if="isAdmin && hover"
-                  :to="{name: 'food_dish', params: {id: dish.id}}"
-                >
+                  :to="{name: 'food_dish', params: {id: dish.id}}">
                   <v-icon color="grey lighten-5">edit</v-icon>
                 </v-btn>
                 <v-btn
-                  icon
-                  ripple
-                  small
+                  icon ripple small
                   class="my-0"
                   title="Удалить"
                   v-if="isAdmin && hover"
-                  @click.stop="confirmDelete(dish, type)"
-                >
+                  @click.stop="confirmDelete(dish, type)">
                   <v-icon color="error">delete</v-icon>
                 </v-btn>
               </v-card-title>
@@ -61,11 +55,7 @@
 
             <v-card-text>
               <v-layout column>
-                <v-flex
-                  v-for="ingredient in dish.ingredients"
-                  :key="ingredient.id"
-                  class="body-2"
-                >{{ ingredient.name }}</v-flex>
+                <v-flex v-for="ingredient in dish.ingredients" :key="ingredient.id" class="body-2">{{ ingredient.name }}</v-flex>
                 <v-flex v-if="dish.recipe" class="pt-2" style="white-space: pre-wrap;">
                   <v-sheet color="grey lighten-4" class="pa-3">{{ dish.recipe }}</v-sheet>
                 </v-flex>
@@ -80,8 +70,7 @@
         :loading="remove.loading"
         :name="remove.dish.name"
         @confirm-click="deleteDish"
-        @cancel-click="clearDelete()"
-      />
+        @cancel-click="clearDelete()"/>
     </v-flex>
   </v-layout>
 </template>
@@ -111,36 +100,29 @@ export default {
     }
   },
   methods: {
-    async fetchList() {
-			this.$store.commit("loadingStart");
-      try {
-        let result = await this.$apollo.query({
-          query: this.$gql` {
-          types {
-            id
-            name
-            dishes {
-              id
-              name
-              recipe
-              ingredients {
-                id
-                name
-              }
-            }
-          }
-          ingredients {
-            id
-            name
-          }
-        } `
-        });
-        this.types = result.data.types;
-        this.ingredients = result.data.ingredients;
-      } catch (error) {
-        console.log(error);
-			}
-			this.$store.commit("loadingStop");
+    fetchList() {
+			this.graphql({
+				query: "{ types { id name dishes { id name recipe ingredients { id name } } } ingredients { id name } }",
+			},
+			data => {
+        this.types = data.types;
+        this.ingredients = data.ingredients;
+			});
+    },
+    deleteDish() {
+			this.graphql({
+				mutation: "mutation($id: Int!) { deleteDish(id: $id) }",
+				variables: {
+					id: this.remove.dish.id
+				},
+				loadingKey: "remove",
+			},
+			() => {
+				this.remove.type.dishes = this.remove.type.dishes.filter(dish => dish.id != this.remove.dish.id);
+				this.$store.commit("success", `Блюдо "${this.remove.dish.name}" удалено`);
+				this.clearDelete();
+			});
+
     },
     filterAll() {
       this.filter = this.ingredients.map(ingredient => ingredient.name);
@@ -160,36 +142,6 @@ export default {
         }
         return false;
       });
-    },
-    async deleteDish(e) {
-      e.preventDefault();
-
-      this.remove.loading = true;
-      try {
-        let result = await this.$apollo.mutate({
-          mutation: this.$gql`
-						mutation($id: Int!) {
-							deleteDish(id: $id) 
-						}
-					`,
-          variables: {
-            id: this.remove.dish.id
-          }
-        });
-        if (result.data.deleteDish) {
-          this.$store.commit("addAlert", {
-            type: "success",
-            message: `Блюдо "${this.remove.dish.name}" удалено`
-          });
-          this.remove.type.dishes = this.remove.type.dishes.filter(
-            dish => dish.id != this.remove.dish.id
-          );
-        }
-      } catch (error) {
-        console.log(error.message);
-      }
-
-      this.clearDelete();
     },
     confirmDelete(dish, type) {
       this.remove.dish = dish;
