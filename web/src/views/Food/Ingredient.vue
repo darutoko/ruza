@@ -9,32 +9,32 @@
         </v-flex>
         <v-flex xs7 sm10>
           <v-text-field
+						ref="addInput"
             label="Добавить"
             v-model.trim="add.value"
-            :error="add.error"
-            :error-messages="add.errorMessage"
+            :rules="add.rules"
             :loading="add.loading"
-            v-on:keyup.enter="addItem"
-          ></v-text-field>
+            :disable="add.loading"
+						@blur="$refs.addInput.resetValidation()"
+            @keyup.enter="addItem"></v-text-field>
         </v-flex>
       </v-layout>
     </v-flex>
 
     <v-flex>
-      <v-hover v-for="item in items" :key="item.id">
+      <v-hover v-for="(item, i) in items" :key="item.id">
         <v-card slot-scope="{ hover }" :color="`${hover ? 'grey lighten-4' : 'white'}`">
           <v-container pa-0>
             <v-layout align-center>
               <v-flex xs8 md10 v-if="item.id == update.item.id">
                 <v-text-field
                   label="Изменить"
+									class="pl-2"
                   v-model.trim="update.value"
-                  :error="update.error"
-                  :error-messages="update.errorMessage"
-                  :full-width="true"
+                  :rules="update.rules"
                   :loading="update.loading"
-                  v-on:keyup.enter="updateItem"
-                ></v-text-field>
+                  :disabled="update.loading"
+                  @keyup.enter="updateItem"></v-text-field>
               </v-flex>
               <v-flex xs8 md10 v-else>
                 <v-card-text>{{ item.name }}</v-card-text>
@@ -42,23 +42,19 @@
               <v-flex xs4 md2 class="text-xs-right">
                 <v-btn
                   v-if="hover && item.id != update.item.id"
-                  icon
-                  ripple
+                  icon ripple
                   title="Изменить"
-                  @click.prevent="showUpdateInput(item)"
-                >
+                  @click.prevent="showUpdateInput(item)">
                   <v-icon color="info">edit</v-icon>
                 </v-btn>
                 <v-btn
                   v-if="hover && item.id == update.item.id"
-                  icon
-                  ripple
+                  icon ripple
                   title="Отмена"
-                  @click.prevent="hideUpdateInput()"
-                >
+                  @click.prevent="hideUpdateInput()">
                   <v-icon color="secondary">cancel</v-icon>
                 </v-btn>
-                <v-btn v-if="hover" icon ripple title="Удалить" @click.stop="confirmDelete(item)">
+                <v-btn v-if="hover" icon ripple title="Удалить" @click.stop="confirmDelete(i)">
                   <v-icon color="error">delete</v-icon>
                 </v-btn>
               </v-flex>
@@ -70,16 +66,16 @@
       <DialogDelete
         :shown="remove.dialog"
         :loading="remove.loading"
-        :name="remove.item.name"
+        :name="remove.name"
         @confirm-click="deleteItem"
-        @cancel-click="clearDelete()"
-      />
+        @cancel-click="clearDelete()"/>
     </v-flex>
   </v-layout>
 </template>
 
 <script>
 import DialogDelete from "@/components/DialogDelete.vue";
+import { textRequired } from "@/utils/rules.js";
 
 export default {
   name: "Ingredient",
@@ -88,39 +84,23 @@ export default {
     return {
       items: [],
       add: {
-        error: false,
         value: "",
-        loading: false,
-        errorMessage: ""
+				loading: false,
+				rules: [textRequired, this.uniqueItem],
       },
       update: {
         item: {},
-        error: false,
         value: "",
         loading: false,
-        errorMessage: ""
+				rules: [textRequired, this.uniqueItem],
       },
       remove: {
-        item: {},
+				name: "",
+        index: null,
         dialog: false,
         loading: false
       }
     };
-  },
-  apollo: {
-    items: {
-      query() {
-        return this.$gql`
-				{ 
-					${this.name}s {
-						id
-						name
-					}
-				}
-				`;
-      },
-      update: data => data.ingredients || data.types
-    }
   },
   computed: {
     name() {
@@ -137,120 +117,84 @@ export default {
     }
   },
   methods: {
-    async addItem(e) {
-      e.preventDefault();
-      if (!this.isInputValid(this.add)) return;
-
-      this.add.loading = true;
-      try {
-        let result = await this.$apollo.mutate({
-          mutation: this.$gql`
-						mutation($name: String!) {
-							${this.addName}(name: $name) {
-								id
-								name
-							}
-						}
-					`,
-          variables: {
-            name: this.add.value
-          }
-        });
-        this.items.push(result.data[this.addName]);
-      } catch (error) {
-        console.log(error.message);
-      }
-
-      this.clearInput(this.add);
+		fetchItems() {
+			this.graphql({
+				query: `{ ${this.name}s { id name } }`,
+			},
+			data => {
+        this.items = data[this.name + "s"];
+			});
+		},
+    addItem() {
+			if (!this.$refs.addInput.validate()) return;
+			this.graphql({
+				mutation: `mutation($name: String!) { ${this.addName}(name: $name) { id name } }`,
+				variables: {
+					name: this.add.value
+				},
+				loadingKey: "add",
+			},
+			data => {
+        this.items.push(data[this.addName]);
+				this.$store.commit("success", `Компонент "${this.items[this.items.length - 1].name}" добавлен`);
+				this.add.value = "";
+				this.$refs.addInput.resetValidation();
+			});
     },
-    async updateItem(e) {
-      e.preventDefault();
-      if (!this.isInputValid(this.update)) return;
-
-      this.update.loading = true;
-      try {
-        let result = await this.$apollo.mutate({
-          mutation: this.$gql`
-						mutation($id: Int!, $name: String!) {
-							${this.updateName}(id: $id, name: $name) {
-								id
-								name
-							}
-						}
-					`,
-          variables: {
-            id: this.update.item.id,
-            name: this.update.value
-          }
-        });
-				
-        this.update.item.name = result.data[this.updateName].name;
-      } catch (error) {
-        console.log(error.message);
-      }
-
-      this.hideUpdateInput();
+    updateItem() {
+			if (this.update.value === "") return;
+			this.graphql({
+				mutation: `mutation($id: Int!, $name: String!) { ${this.updateName}(id: $id, name: $name) { id name } }`,
+				variables: {
+					id: this.update.item.id,
+					name: this.update.value
+				},
+				loadingKey: "update",
+			},
+			data => {
+        this.update.item.name = data[this.updateName].name;
+				this.$store.commit("success", `Компонент "${this.update.item.name}" обновлен`);
+				this.hideUpdateInput();
+			});
     },
-    async deleteItem() {
-      this.remove.loading = true;
-      try {
-        let result = await this.$apollo.mutate({
-          mutation: this.$gql`
-						mutation($id: Int!) {
-							${this.deleteName}(id: $id) 
-						}
-					`,
-          variables: {
-            id: this.remove.item.id
-          }
-        });
-
-        if (result.data[this.deleteName])
-          this.items = this.items.filter(
-            item => item.id != this.remove.item.id
-          );
-      } catch (error) {
-        console.log(error.message);
-      }
-
-      this.clearDelete();
+    deleteItem() {
+			this.graphql({
+				mutation: `mutation($id: Int!) { ${this.deleteName}(id: $id) }`,
+				variables: {
+					id: this.items[this.remove.index].id
+				},
+				loadingKey: "remove",
+			},
+			data => {
+				this.items.splice(this.remove.index, 1);
+				this.$store.commit("success", `Компонент "${this.remove.name}" удален`);
+				this.clearDelete();
+			});
     },
     showUpdateInput(item) {
-      this.hideUpdateInput();
       this.update.item = item;
       this.update.value = item.name;
     },
     hideUpdateInput() {
       this.update.item = {};
-      this.clearInput(this.update);
-    },
-    isInputValid(input) {
-      input.error = false;
-      input.errorMessage = "";
-      if (!input.value) return false;
-      if (this.items.some(item => item.name === input.value)) {
-        input.error = true;
-        input.errorMessage = "Название уже занято";
-        return false;
-      }
-
-      return true;
-    },
-    clearInput(input) {
-      input.value = "";
-      input.error = false;
-      input.loading = false;
-      input.errorMessage = "";
-    },
-    confirmDelete(item) {
-      this.remove.item = item;
+		},
+		uniqueItem(value) {
+			if (this.items.some(item => item.name === value)) return "Название уже занято";
+			return true;
+		},
+    confirmDelete(i) {
+			this.remove.name = this.items[i].name;
+			this.remove.index = i;
       this.remove.dialog = true;
     },
     clearDelete() {
-      this.remove.item = {};
+      this.remove.name = "";
+      this.remove.index = null;
       this.remove.dialog = false;
-      this.remove.loading = false;
-    }
-  }
+		},
+  },
+	mounted() {
+		this.fetchItems();
+	}
 };
 </script>
