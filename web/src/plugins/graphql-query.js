@@ -26,7 +26,7 @@ let GraphQLQuery = {
 						} else {
 							throw "Unknown query type";
 						}
-						callback(result.data);
+						callback(result.data, result);
 					} catch (error) {
 						this.$store.commit("error", error.message);
 					}

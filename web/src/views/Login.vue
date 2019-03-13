@@ -1,44 +1,46 @@
 <template>
-  <v-layout column>
-    <v-flex>
-			<v-form>
-        <v-text-field v-model.trim="username" label="Имя пользователя" :rules="usernameRules" required></v-text-field>
-        <v-text-field v-model.trim="password" label="Пароль" :rules="passwordRules" type="password" required></v-text-field>
-			</v-form>
-    </v-flex>
+	<v-form ref="form" @submit.prevent="login">
+		<v-layout column>
+			<v-flex>
+				<v-text-field v-model.trim="form.username" label="Имя пользователя" :rules="form.textRules" required></v-text-field>
+				<v-text-field v-model.trim="form.password" label="Пароль" :rules="form.textRules" type="password" required></v-text-field>
+			</v-flex>
 
-		<v-flex mt-3>
-			<v-layout>
-				<v-flex shrink>
-					<v-btn color="primary" outline @click="goBack">
-						<v-icon>navigate_before</v-icon>Назад
-					</v-btn>
-				</v-flex>
-				<v-spacer></v-spacer>
-				<v-flex shrink>
-					<v-btn color="primary" :loading="isLoading" :disabled="isLoading" @click="login">
-						Войти
-					</v-btn>
-				</v-flex>
-			</v-layout>
-		</v-flex>
-  </v-layout>
+			<v-flex mt-3>
+				<v-layout>
+					<v-flex shrink>
+						<v-btn color="primary" outline @click="goBack">
+							<v-icon>navigate_before</v-icon>Назад
+						</v-btn>
+					</v-flex>
+					<v-spacer></v-spacer>
+					<v-flex shrink>
+						<v-btn color="primary" type="submit" :loading="form.loading" :disabled="form.loading">
+							Войти
+						</v-btn>
+					</v-flex>
+				</v-layout>
+			</v-flex>
+		</v-layout>
+	</v-form>
 </template>
 
 <script>
 import { onLogin } from "@/vue-apollo.js";
+import { textRequired } from "@/utils/rules.js";
 
 export default {
   name: "Login",
   data() {
     return {
+			form: {
             // username: "admin",
             // password: "admin",
-			username: "",
-			password: "",
-			isLoading: false,
-			usernameRules: [this.stringRequired],
-			passwordRules: [this.stringRequired]
+				username: "",
+				password: "",
+				loading: false,
+				textRules: [textRequired],
+			}
     };
   },
   mounted() {
@@ -48,40 +50,26 @@ export default {
     });
 	},
 	methods: {
-    stringRequired(value) {
-      if (value) return true;
-      return "Поле необходимо заполнить";
-		},
-		goBack() {
-			this.$router.go(-1);
-		},
     async login() {
-			this.isLoading = true;
-			try {
-				let result = await this.$apollo.mutate({
-						mutation: this.$gql`
-							mutation($username: String!, $password: String!) {
-								login(username: $username, password: $password) {
-									username
-									isAdmin
-								}
-							}`,
-						variables: {
-							username: this.username,
-							password: this.password
-						},
-				});
+			if (!this.$refs.form.validate()) return;
+
+			this.graphql({
+				mutation: "mutation($username: String!, $password: String!) { login(username: $username, password: $password) { username isAdmin } }",
+				variables: {
+					username: this.form.username,
+					password: this.form.password
+				},
+				loadingKey: "form",
+			},
+			(data, result) => {
 				this.$store.commit("setUser", result.token);
 				onLogin(this.$apollo.provider.defaultClient, result.token);
 				this.goBack();
-			} catch (error) {
-				this.$store.commit("addAlert", {
-					type: "error",
-					message: error.message
-				});
-			}
-			this.isLoading = false;
+			});
     },
+		goBack() {
+			this.$router.go(-1);
+		},
 	}
 };
 </script>
