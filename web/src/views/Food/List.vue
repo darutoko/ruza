@@ -55,7 +55,7 @@
 
             <v-card-text>
               <v-layout column>
-                <v-flex v-for="ingredient in dish.ingredients" :key="ingredient.id" class="body-2">{{ ingredient.name }}</v-flex>
+                <v-flex class="body-2"><v-chip v-for="ingredient in dish.ingredients" :key="ingredient.id">{{ ingredient.name }}</v-chip></v-flex>
                 <v-flex v-if="dish.recipe" class="pt-2" style="white-space: pre-wrap;">
                   <v-sheet color="grey lighten-4" class="pa-3">{{ dish.recipe }}</v-sheet>
                 </v-flex>
