@@ -34,7 +34,7 @@
 							<v-icon color="grey lighten-5">sync</v-icon>
 						</v-btn>
 						<div class="headline ml-1">
-							<a class="white--text" style="text-decoration: none;" :href="show.url" target="_blank">{{ show.title }}</a>
+							<a class="white--text" style="text-decoration: none;" :href="show.url" target="_blank">{{ show.title }} S{{ show.current_season.toString().padStart(2, "0")}}</a>
 						</div>
 						<v-spacer></v-spacer>
 						<v-btn
