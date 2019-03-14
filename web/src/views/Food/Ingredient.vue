@@ -166,7 +166,7 @@ export default {
 				},
 				loadingKey: "remove",
 			},
-			data => {
+			() => {
 				this.items.splice(this.remove.index, 1);
 				this.$store.commit("success", `Компонент "${this.remove.name}" удален`);
 				this.clearDelete();
