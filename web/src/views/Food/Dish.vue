@@ -115,7 +115,7 @@ export default {
 				variables: { ...this.form, id: this.$route.params.id },
 				loadingKey: "form",
 			},
-			data => {
+			() => {
 				this.resetForm();
 				this.$store.commit("success", `Блюдо ${this.form.name} обновлено`);
 				this.$router.replace({ name: "food_list" });
