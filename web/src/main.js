@@ -1,5 +1,4 @@
 import Vue from 'vue'
-import gql from "graphql-tag";
 import './plugins/vuetify'
 import './plugins/graphql-query'
 import App from './App.vue'
@@ -8,7 +7,6 @@ import store from './store'
 import { createProvider } from './vue-apollo'
 
 Vue.config.productionTip = false;
-Vue.prototype.$gql = gql;
 
 new Vue({
 	router,

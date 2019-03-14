@@ -20,10 +20,6 @@ export default new Vuex.Store({
 		error(state, message) {
 			state.alerts.push({ type: "error", isShown: true, message });
 		},
-		addAlert(state, payload) {
-			payload.isShown = true;
-			state.alerts.push(payload);
-		},
 		setUser(state, payload) {
 			let user = parseToken(payload);
 
@@ -42,8 +38,6 @@ export default new Vuex.Store({
 			state.menu.user = payload.user || [];
 			state.menu.admin = payload.admin || [];
 		},
-		loadingStop(state)  { state.loading-- },
-		loadingStart(state) { state.loading++ },
 		loading(state, isLoading) {
 			if (isLoading === true) state.loading++
 			if (isLoading === false) state.loading--
