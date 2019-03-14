@@ -120,6 +120,7 @@ export default {
 		fetchItems() {
 			this.graphql({
 				query: `{ ${this.name}s { id name } }`,
+				fetchPolicy: "no-cache",
 			},
 			data => {
         this.items = data[this.name + "s"];
