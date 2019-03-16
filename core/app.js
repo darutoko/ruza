@@ -19,5 +19,8 @@ app.use("/api", graphqlHTTP({
 	schema,
 	graphiql: process.env.GRAPHIQL
 }));
+app.use("/*", (req, res, next) => {
+	res.sendFile(__dirname + '/public/index.html');
+});
 
 app.listen(process.env.PORT, () => console.log(`Listening at port ${process.env.PORT}`));
