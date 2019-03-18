@@ -22,17 +22,17 @@ export default {
         {
           icon: "live_tv",
           name: "Сериалы",
-          route: "/"
+          route: {name: "shows_list"}
         },
         {
           icon: "restaurant_menu",
           name: "Еда",
-          route: "/food"
+          route: {name: "food_list"}
         },
         {
           icon: "video_label",
           name: "Видео",
-          route: "/video"
+          route: {name: "videos"}
         }
       ]
     };

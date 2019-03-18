@@ -56,9 +56,9 @@ export default new Router({
 			]
 		},
 		{
-			path: '/video',
-			name: 'video',
-			component: () => import('./views/About.vue')
+			path: '/videos',
+			name: 'videos',
+			component: () => import('./views/Videos.vue')
 		},
 		{
 			path: '/403',
