@@ -83,7 +83,6 @@ export default {
 				variables: {
 					id: this.$route.params.id
 				},
-				fetchPolicy: "no-cache",
 			},
 			data => {
 				if (this.$route.params.id) this.dish = data.dish;

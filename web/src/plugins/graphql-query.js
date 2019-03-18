@@ -9,6 +9,7 @@ let GraphQLQuery = {
 					let loading;
 					if (request.loadingKey) loading = (isLoading) => this[request.loadingKey].loading = isLoading;
 					else loading = (isLoading) => this.$store.commit("loading", isLoading);
+					if (this.$store.state.user.isAdmin) request.fetchPolicy = "no-cache";
 
 					loading(true);
 					try {

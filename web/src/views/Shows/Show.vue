@@ -91,7 +91,6 @@ export default {
 				variables: {
 					id: this.$route.params.id
 				},
-				fetchPolicy: "no-cache",
 			},
 			data => {
 				this.show = data.show;
