@@ -131,7 +131,7 @@ export default {
 				mutation: "mutation($directory: Directory!, $path: String!) { videoStart(directory: $directory, path: $path) }",
 				variables: {
 					directory: this.directories[this.directory],
-					path: [this.path, file].join("/")
+					path: [...this.path, file].join("/")
 				},
 				loadingKey: "ui",
 			},
