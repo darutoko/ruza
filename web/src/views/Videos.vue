@@ -1,32 +1,35 @@
 <template>
   <v-layout column>
-		<v-flex>
-			<v-btn
-				icon ripple
-				title="Остановить видео"
-				:disabled="ui.loading"
-				@click.prevent="videoStop()">
-				<v-icon>stop</v-icon>
-			</v-btn>
-			<v-btn
-				icon ripple
-				title="Уменьшить звук"
-				:disabled="ui.loading"
-				@click.prevent="volumeChange(-1)">
-				<v-icon>volume_down</v-icon>
-			</v-btn>
-			<v-btn
-				icon ripple
-				title="Увеличить звук"
-				:disabled="ui.loading"
-				@click.prevent="volumeChange(1)">
-				<v-icon>volume_up</v-icon>
-			</v-btn>
-		</v-flex>
     <v-flex>
-			<v-tabs v-model="directory">
-				<v-tab v-for="d in directories" :key="d">{{ d }}</v-tab>
-			</v-tabs>
+			<v-toolbar color="blue darken-2" dark tabs>
+				<v-btn
+					icon ripple
+					title="Остановить видео"
+					:disabled="ui.loading"
+					@click.prevent="videoStop()">
+					<v-icon>stop</v-icon>
+				</v-btn>
+				<v-spacer></v-spacer>
+				<v-btn
+					icon ripple
+					title="Уменьшить звук"
+					:disabled="ui.loading"
+					@click.prevent="volumeChange(-1)">
+					<v-icon>volume_down</v-icon>
+				</v-btn>
+				<v-btn
+					icon ripple
+					title="Увеличить звук"
+					:disabled="ui.loading"
+					@click.prevent="volumeChange(1)">
+					<v-icon>volume_up</v-icon>
+				</v-btn>
+				<template v-slot:extension>
+					<v-tabs v-model="directory" color="blue darken-2">
+						<v-tab v-for="d in directories" :key="d">{{ d }}</v-tab>
+					</v-tabs>
+				</template>
+			</v-toolbar>
     </v-flex>
 		<v-flex>
 			<v-breadcrumbs :items="breadcrumbs">
@@ -49,7 +52,7 @@
 							title="Запустить видео"
 							:disabled="ui.loading"
 							@click.prevent="videoStart(file.name)">
-							<v-icon>play_arrow</v-icon>
+							<v-icon color="blue darken-2">play_arrow</v-icon>
 						</v-btn>
 						<v-btn
 							icon ripple
@@ -57,7 +60,7 @@
 							title="Открыть папку"
 							:disabled="ui.loading"
 							@click.prevent="navigateForward(file.name)">
-							<v-icon>folder</v-icon>
+							<v-icon color="blue darken-2">folder</v-icon>
 						</v-btn>
 					</v-list-tile-avatar>
 					<v-list-tile-content>
