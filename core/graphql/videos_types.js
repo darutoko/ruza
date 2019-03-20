@@ -4,7 +4,7 @@ let directoryType = new GraphQLEnumType({
 	name: "Directory",
 	description: "Root directory to browse",
 	values: {
-		download: { value: "D:\\Download\\!Video\\" },
+		downloads: { value: "D:\\Download\\!Video\\" },
 		films: { value: "D:\\Video\\Films\\" },
 	}
 });
