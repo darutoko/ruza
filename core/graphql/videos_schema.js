@@ -35,11 +35,8 @@ module.exports = {
 					}, response => {
 						let error;
 
-						if (response.statusCode !== 200) {
-							error = new Error("Request Failed.\n" + `Status Code: ${response.statusCode}`);
-						} else if (!/^application\/json/.test(response.headers["content-type"])) {
-							error = new Error("Invalid content-type.\n" + `Expected application/json but received ${response.headers["content-type"]}`);
-						}
+						if (response.statusCode !== 200) error = new Error("Request Failed.\n" + `Status Code: ${response.statusCode}`)
+						else if (!/^application\/json/.test(response.headers["content-type"])) error = new Error("Invalid content-type.\n" + `Expected application/json but received ${response.headers["content-type"]}`)
 
 						if (error) {
 							response.resume();
