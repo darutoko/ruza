@@ -6,6 +6,7 @@ let directoryType = new GraphQLEnumType({
 	values: {
 		downloads: { value: "D:\\Download\\!Video\\" },
 		films: { value: "D:\\Video\\Films\\" },
+		twitch: { value: "https://api.twitch.tv/kraken/streams/followed" },
 	}
 });
 
@@ -16,6 +17,10 @@ let fileType = new GraphQLObjectType({
 		name: {
 			type: new GraphQLNonNull(GraphQLString),
 			description: "Name of a file"
+		},
+		description: {
+			type: GraphQLString,
+			description: "Additional data about file"
 		},
 		isFile: {
 			type: new GraphQLNonNull(GraphQLBoolean),
