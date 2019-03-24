@@ -22,7 +22,16 @@ export default {
         //   to: { name: "food_dish" }
         // },
 			],
-			user: []
+			user: [
+        {
+          title: "Диск",
+          to: { name: "videos_disk" }
+        },
+        {
+          title: "Интернет",
+          to: { name: "videos_internet" }
+        },
+			]
     });
   }
 };
