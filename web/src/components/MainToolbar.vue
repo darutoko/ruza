@@ -10,6 +10,12 @@
       </v-btn>
 
       <v-list>
+        <v-list-tile v-for="item in userItems" :key="item.title" :to="item.to" exact>
+          <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+        </v-list-tile>
+
+				<v-divider v-if="userItems.length"></v-divider>
+
         <v-list-tile v-for="(item, i) in adminItems" :key="i" :to="item.to">
           <v-list-tile-title>{{ item.title }}</v-list-tile-title>
         </v-list-tile>
@@ -31,6 +37,9 @@ import { onLogout } from "@/vue-apollo.js";
 export default {
 	name: "MainToolbar",
 	computed: {
+		userItems() {
+			return this.$store.state.menu.user;
+		},
 		adminItems() {
 			if (this.$store.state.user && this.$store.state.user.isAdmin) {
 				return this.$store.state.menu.admin
