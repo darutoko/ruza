@@ -16,12 +16,7 @@ export default {
   },
   mounted() {
     this.$store.commit("setMenu", {
-      admin: [
-        // {
-        //   title: "Добавить Блюдо",
-        //   to: { name: "food_dish" }
-        // },
-			],
+      admin: [],
 			user: [
         {
           title: "Диск",

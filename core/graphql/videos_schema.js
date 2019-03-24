@@ -4,7 +4,7 @@ let https = require("https");
 let { GraphQLList, GraphQLNonNull, GraphQLBoolean, GraphQLInt, GraphQLString } = require("graphql");
 
 let { rejectedPromise } = require("./tools");
-let { directoryType, fileType } = require("./videos_types");
+let { directoryType, fileType, serviceType, streamType } = require("./videos_types");
 let RegVideoFiles = /\.(?:mkv|mp4|avi|flv|mpg|mpeg)$/i;
 
 module.exports = {
@@ -29,19 +29,16 @@ module.exports = {
 		},
 
 		videoInternet: {
-			type: new GraphQLList(fileType),
+			type: new GraphQLList(streamType),
 			description: "Directory content",
 			args: {
-				directory: {
-					type: new GraphQLNonNull(directoryType)
+				service: {
+					type: new GraphQLNonNull(serviceType)
 				},
-				path: {
-					type: new GraphQLNonNull(GraphQLString)
-				}
 			},
-			resolve(source, {directory, path}, context, info) {
-				if (/twitch/i.test(directory)) return new Promise((resolve, reject) => {
-					let url = new URL(directory);
+			resolve(source, arguments, context, info) {
+				if (arguments.service === "twitch") return new Promise((resolve, reject) => {
+					let url = new URL("https://api.twitch.tv/kraken/streams/followed");
 					https.get({
 						agent: false,
 						hostname: url.hostname,
@@ -69,7 +66,7 @@ module.exports = {
 						response.on('end', () => {
 							try {
 								const parsedData = JSON.parse(rawData);
-								resolve(parsedData.streams.map(stream => ({name: stream.channel.display_name, isFile: true, description: stream.channel.status})));
+								resolve(parsedData.streams.map(stream => ({name: stream.channel.display_name, game: stream.channel.game, status: stream.channel.status})));
 							} catch (error) {
 								reject(error.message);
 							}
@@ -127,6 +124,23 @@ module.exports = {
 				let volume = 3276 * arguments.multiplier;
 				try {
 					cp.exec(`"d:\\Porto Files\\NirSoft\\NirSoft\\nircmd.exe" changesysvolume  ${volume}`);
+					return true;
+				} catch (error) {
+					return rejectedPromise(error.message);
+				}
+			}
+		},
+		twitchStart: {
+			type: GraphQLBoolean,
+			description: "Start twitch stream playback",
+			args: {
+				name: {
+					type: new GraphQLNonNull(GraphQLString)
+				}
+			},
+			resolve(source, arguments, context, info) {
+				try {
+					cp.exec(`start "" "livestreamer" twitch.tv/${arguments.name} 360p`);
 					return true;
 				} catch (error) {
 					return rejectedPromise(error.message);
