@@ -58,7 +58,19 @@ export default new Router({
 		{
 			path: '/videos',
 			name: 'videos',
-			component: () => import('./views/Videos.vue')
+			component: () => import('./views/Videos/Videos.vue'),
+			children: [
+				{
+					path: '',
+					name: 'videos_disk',
+					component: () => import('./views/Videos/Disk.vue'),
+				},
+				{
+					path: 'internet',
+					name: 'videos_internet',
+					component: () => import('./views/Videos/Internet.vue'),
+				},
+			]
 		},
 		{
 			path: '/403',
