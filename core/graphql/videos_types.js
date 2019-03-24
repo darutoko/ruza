@@ -18,10 +18,6 @@ let fileType = new GraphQLObjectType({
 			type: new GraphQLNonNull(GraphQLString),
 			description: "Name of a file"
 		},
-		description: {
-			type: GraphQLString,
-			description: "Additional data about file"
-		},
 		isFile: {
 			type: new GraphQLNonNull(GraphQLBoolean),
 			description: "Is it file or some thing else"

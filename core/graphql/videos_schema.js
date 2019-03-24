@@ -9,7 +9,26 @@ let RegVideoFiles = /\.(?:mkv|mp4|avi|flv|mpg|mpeg)$/i;
 
 module.exports = {
 	query: {
-		ls: {
+		videoDisk: {
+			type: new GraphQLList(fileType),
+			description: "Directory content",
+			args: {
+				directory: {
+					type: new GraphQLNonNull(directoryType)
+				},
+				path: {
+					type: new GraphQLNonNull(GraphQLString)
+				}
+			},
+			resolve(source, {directory, path}, context, info) {
+				path = cleanPath(path);
+				return fs.readdirSync(directory + path, {withFileTypes: true})
+					.filter(d => !d.isFile() || RegVideoFiles.test(d.name))
+					.sort((a, b) => a.isFile() === b.isFile() ? a.name.localeCompare(b.name) : a.isFile() ? 1 : -1);
+			}
+		},
+
+		videoInternet: {
 			type: new GraphQLList(fileType),
 			description: "Directory content",
 			args: {
@@ -44,8 +63,8 @@ module.exports = {
 							return;
 						}
 					
-						response.setEncoding('utf8');
 						let rawData = '';
+						response.setEncoding('utf8');
 						response.on('data', chunk => { rawData += chunk; });
 						response.on('end', () => {
 							try {
@@ -57,10 +76,6 @@ module.exports = {
 						});
 					});
 				});
-				path = cleanPath(path);
-				return fs.readdirSync(directory + path, {withFileTypes: true})
-					.filter(d => !d.isFile() || RegVideoFiles.test(d.name))
-					.sort((a, b) => a.isFile() === b.isFile() ? a.name.localeCompare(b.name) : a.isFile() ? 1 : -1);
 			}
 		},
 	},

@@ -74,7 +74,7 @@
 
 <script>
 export default {
-	name: "Videos",
+	name: "Disk",
 	// components: {},
 	data() {
 		return {
@@ -109,7 +109,7 @@ export default {
 	methods: {
 		fetchFiles() {
 			this.graphql({
-				query: "query($directory: Directory!, $path: String!) { ls(directory: $directory, path: $path) { name isFile } }",
+				query: "query($directory: Directory!, $path: String!) { videoDisk(directory: $directory, path: $path) { name isFile } }",
 				variables: {
 					directory: this.directories[this.directory],
 					path: this.path.join("/")
@@ -117,7 +117,7 @@ export default {
 				loadingKey: "ui",
 			},
 			data => {
-				this.files = data.ls;
+				this.files = data.videoDisk;
 			});
 		},
 		navigateBack(index) {
@@ -164,10 +164,6 @@ export default {
 	// created() {},
 	mounted() {
 		this.fetchFiles();
-    this.$store.commit("setMenu", {
-      admin: [],
-			user: []
-    });
 	},
 }
 </script>
