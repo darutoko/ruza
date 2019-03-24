@@ -32,7 +32,7 @@ export default {
         {
           icon: "video_label",
           name: "Видео",
-          route: {name: "videos"}
+          route: {name: "videos_disk"}
         }
       ]
     };
