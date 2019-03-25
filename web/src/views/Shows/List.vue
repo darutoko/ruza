@@ -128,7 +128,7 @@ export default {
 				query: "{ shows { " + this.showFields + " season { " + this.seasonFields + " } } }",
 			},
 			data => {
-        this.shows = data.shows;
+        this.shows = data.shows.sort((a,b) => !a.season ? 1 : !b.season ? -1 : a.season.episodes_total - a.season.episodes_aired < b.season.episodes_total - b.season.episodes_aired);
 			});
     },
 		addShow() {
