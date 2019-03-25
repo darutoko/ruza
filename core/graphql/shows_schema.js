@@ -112,7 +112,7 @@ VALUES ($1, $2, $3, $4, $2, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING 
 					let {browser, page} = await launchPuppeteer();
 					await page.goto(`${show.url}episodes?season=${show.current_season}`);
 					let dates = await page.$$eval(".airdate", divs => divs.map(div => div.textContent.trim()));
-					console.log("dates: " + dates);
+					let seasons = await page.$eval("#bySeason", select => (select.options[select.options.length-1].value * 1) || 1);
 					await browser.close();
 					
 					let today = new Date;
@@ -133,6 +133,8 @@ VALUES ($1, $2, $3, $4, $2, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING 
 						episodes.aired++;
 						episodes.last = episodeDate;
 					}
+
+					if (show.seasons !== seasons) await db.query(`UPDATE public.show SET seasons = $1 WHERE id = $2;`, [ seasons, arguments.id ]);
 
 					result = await db.query(
 						`INSERT INTO public.season (show_id, num, episodes_total, episodes_aired, episode_last_at, episode_next_at, episode_final_at, directory, "createdAt", "updatedAt")
@@ -254,5 +256,5 @@ async function launchPuppeteer() {
 function stringToDate(string) {
 	let month = {Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12};
 	let chunks = (string || "").split(/[ .]+/).reverse();
-	return new Date((chunks[0]||2030), (month[chunks[1]]||12)-1, (chunks[2]||28));
+	return new Date((chunks[0]||2084), (month[chunks[1]]||12)-1, (chunks[2]||28));
 }
