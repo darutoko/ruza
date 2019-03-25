@@ -20,9 +20,9 @@ module.exports = {
 					type: new GraphQLNonNull(GraphQLString)
 				}
 			},
-			resolve(source, {directory, path}, context, info) {
-				path = cleanPath(path);
-				return fs.readdirSync(directory + path, {withFileTypes: true})
+			resolve(source, arguments, context, info) {
+				let path = cleanPath(arguments.path);
+				return fs.readdirSync(arguments.directory + path, {withFileTypes: true})
 					.filter(d => !d.isFile() || RegVideoFiles.test(d.name))
 					.sort((a, b) => a.isFile() === b.isFile() ? a.name.localeCompare(b.name) : a.isFile() ? 1 : -1);
 			}
