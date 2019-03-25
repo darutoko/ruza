@@ -18,7 +18,7 @@
 				<v-hover>
 					<v-card-title slot-scope="{hover}" class="blue darken-2 white--text pa-2">
 						<v-btn
-							v-if="show.season && show.season.episodes_total && show.season.episodes_total === show.season.episodes_aired"
+							v-if="!isAdmin && show.season && show.season.episodes_total && show.season.episodes_total === show.season.episodes_aired"
 							icon small ripple
 							class="ma-0"
 							title="Сезон закончен">
