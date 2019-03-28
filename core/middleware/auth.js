@@ -11,8 +11,10 @@ function getUser(authorization = "") {
 		let data = jwt.verify(token, process.env.JWT_SECRET);
 		user.username = data.username; user.isAdmin = data.isAdmin;
 	} catch (error) {
-		console.log(`Token was rejected: ${token}`);
-		console.log(error);
+		if (process.env.NODE_ENV !== "production") {
+			console.log(`Token was rejected: ${token}`);
+			console.log(error.message);
+		}
 	}
 
 	return user;

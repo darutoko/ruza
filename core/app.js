@@ -10,14 +10,15 @@ let auth = require("./middleware/auth.js");
 let app = express();
 
 // app.use((req, res, next) => { setTimeout(() => next(), 2000) });
+// TODO:
 
 app.use(bodyParser.json());
-if (process.env.NODE_LOG) app.use((req, res, next) => { console.log(`${req.method} ${req.originalUrl}`); console.log(req.body); next(); });
+if (process.env.NODE_ENV !== "production") app.use((req, res, next) => { console.log(`${req.method} ${req.originalUrl}`); console.log(req.body); next(); });
 app.use(express.static('public'));
 app.use("/api", auth(schema));
 app.use("/api", graphqlHTTP({
 	schema,
-	graphiql: process.env.GRAPHIQL
+	graphiql: process.env.NODE_ENV !== "production"
 }));
 app.use("/*", (req, res, next) => {
 	res.sendFile(__dirname + '/public/index.html');
