@@ -15,8 +15,10 @@
               :key="index"
               v-model="alert.isShown"
               :type="alert.type"
-              dismissible
-            >{{ alert.message }}</v-alert>
+              dismissible>{{ alert.message }}</v-alert>
+						<v-snackbar v-model="$store.state.snackbar.isShown" :timeout="$store.state.snackbar.timeout" :top="true">
+							{{ $store.state.snackbar.message }}
+						</v-snackbar>
           </v-flex>
         </v-layout>
 

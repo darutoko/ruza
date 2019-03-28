@@ -96,7 +96,7 @@ export default {
 				loadingKey: "ui",
 			},
 			data => {
-				console.log(data.twitchStart);
+				if (data.twitchStart) this.$store.commit("snackbar", `Видео запущено`);
 			});
 		},
 		videoStop() {
@@ -105,7 +105,7 @@ export default {
 				loadingKey: "ui",
 			},
 			data => {
-				console.log(data.videoStop);
+				if (data.videoStop) this.$store.commit("snackbar", `Видео остановлено`);
 			});
 		},
 		volumeChange(multiplier) {
@@ -117,7 +117,7 @@ export default {
 				loadingKey: "ui",
 			},
 			data => {
-				console.log(data.volumeChange);
+				if (data.volumeChange) this.$store.commit("snackbar", `Звук изменен`);
 			});
 		},
 	},

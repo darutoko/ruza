@@ -11,6 +11,11 @@ export default new Vuex.Store({
 		menu: {
 			user: [],
 			admin: [],
+		},
+		snackbar: {
+			message: '',
+			timeout: 3000,
+			isShown: false,
 		}
 	},
 	mutations: {
@@ -19,6 +24,9 @@ export default new Vuex.Store({
 		},
 		error(state, message) {
 			state.alerts.push({ type: "error", isShown: true, message });
+		},
+		snackbar(state, message) {
+			state.snackbar = { isShown: true, timeout: 3000, message };
 		},
 		setUser(state, payload) {
 			let user = parseToken(payload);

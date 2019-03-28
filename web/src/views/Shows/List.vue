@@ -141,7 +141,7 @@ export default {
 				loadingKey: "add",
 			},
 			data => {
-				this.$store.commit("success", `Сериал ${data.addShow.title} добавлен`);
+				this.$store.commit("success", `Сериал "${data.addShow.title}" добавлен`);
 				this.shows.push(data.addShow);
 				this.add.value = "";
 				this.$refs.addInput.resetValidation();
@@ -157,7 +157,7 @@ export default {
 				loadingKey: "sync",
 			},
 			data => {
-				this.$store.commit("success", `Сериал ${show.title} обновлен`);
+				this.$store.commit("snackbar", `Сериал "${show.title}" обновлен`);
 				show.season = data.syncShow.season;
 			});
 		},
