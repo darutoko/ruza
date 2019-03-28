@@ -1,5 +1,6 @@
 @del C:\Users\Alex\Web\ruza\public /s /q
 @xcopy C:\Users\Alex\github\ruza\web\dist\* C:\Users\Alex\Web\ruza\public\ /v /f /s /y
+@xcopy C:\Users\Alex\github\ruza\core\public\* C:\Users\Alex\Web\ruza\public\ /v /f /s /y
 @xcopy C:\Users\Alex\github\ruza\core\db\* C:\Users\Alex\Web\ruza\db\ /v /f /s /y
 @xcopy C:\Users\Alex\github\ruza\core\graphql\* C:\Users\Alex\Web\ruza\graphql\ /v /f /s /y
 @xcopy C:\Users\Alex\github\ruza\core\middleware\* C:\Users\Alex\Web\ruza\middleware\ /v /f /s /y

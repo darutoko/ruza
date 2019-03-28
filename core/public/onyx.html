@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="theme-color" content="#000000">
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>Home multipurpose web app</title>
+  </head>
+  <body>
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+		<nav class="navbar navbar-dark bg-primary mb-3">
+			<div class="container">
+				<a class="navbar-brand" href="/onyx.html">HMWA</a>
+			</div>
+		</nav>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <nav id="navigation" class="nav nav-pills flex-column flex-md-row">
+          </nav>
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col"></div>
+        <div class="col-auto">
+          <form action="" class="form-inline">
+            <button id="stopButton" class="btn btn-light" type="button"><img src="/img/stop.svg" alt="stop"></button>
+            <span class="mx-3"></span>
+            <button id="volumeDownButton" class="btn btn-light" type="button"><img src="/img/volume_down.svg" alt="-"></button>
+            <span class="mx-2"></span>
+            <!-- <label for="multiplierControl" class="sr-only">Multiplier</label>
+            <input id="multiplierControl" type="range" name="range" min="1" max="10" value="1" list="tickmarks"/>
+            <span class="mx-2"></span> -->
+            <button id="volumeUpButton" class="btn btn-light" type="button"><img src="/img/volume_up.svg" alt="+"></button>
+            <!-- <datalist id="tickmarks">
+              <option value="1" label="1">1</option>
+              <option value="2"></option>
+              <option value="3"></option>
+              <option value="4"></option>
+              <option value="5" label="5"></option>
+              <option value="6"></option>
+              <option value="7"></option>
+              <option value="8"></option>
+              <option value="9"></option>
+              <option value="10" label="10"></option>
+            </datalist> -->
+        </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">&nbsp;</div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <ul id="files" class="list-group"></ul>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">&nbsp;</div>
+      </div>
+    </div>
+    <script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript">
+      (function(){
+        'use strict';
+        var url = '/api';
+        $.ajaxSetup({
+					dataType: "json",
+					contentType: "application/json",
+					method: "POST",
+					url: "/api",
+          error: function(xhr, status, error){
+            alert(status + error);
+          }
+        });
+
+        $(function(){
+          $('#stopButton').click(handleStopClick);
+          $('#volumeDownButton').click(function(e){handleVolume(e, -1)});
+          $('#volumeUpButton').click(function(e){handleVolume(e, 1)});
+					var tabs = ["downloads", "films"];
+					var nav = $('#navigation');
+					for (var i in tabs) {
+						var a = $('<a href="" data-directory="' + tabs[i] + '" class="nav-link">' + tabs[i] + '</a>');
+						a.click(handleNavClick);
+						nav.append(a);
+					}
+        });
+
+        var handleNavClick = function(e) {
+          e.preventDefault();
+          var a = $(e.target);
+          a.parent().children().each(function(){
+            $(this).removeClass('active');
+          });
+					a.addClass('active');
+					getFiles(a.attr("data-directory"), "");
+        };
+
+        var handleDirClick = function(e) {
+          e.preventDefault();
+          var button = $(e.target);
+					if(button.is('img')) button = button.parent();
+
+          getFiles($("#navigation > .active").attr("data-directory"), button.attr("data-path"));
+        };
+
+        var getFiles = function(directory, path) {
+          $.ajax({
+						data: JSON.stringify({
+							query: "query($directory: Directory!, $path: String!) { videoDisk(directory: $directory, path: $path) { name isFile } }",
+							variables: {
+								directory: directory,
+								path: path
+							},
+						}),
+						success: function(body) {
+            var ul = $('#files');
+						var files = body.data.videoDisk;
+						var path_back = path.replace(/\/?[^/]+$/, '');
+						var li =  $('<li class="list-group-item"></li>');
+						var open = $('<button class="btn btn-light mr-2" type="button"><img src="/img/folder.svg" alt="open"></button>').click(handleDirClick);
+						var play = $('<button class="btn btn-light mr-2" type="button"><img src="/img/play_arrow.svg" alt="open"></button>').click(handleFileClick);
+
+            ul.empty();
+            
+            if(path) ul.append(li.clone().append(open.clone(true).attr("data-path", path_back)).append(document.createTextNode("..")));
+									
+
+            for(var i in files) {
+							ul.append(
+								li.clone()
+									.append((files[i].isFile ? play.clone(true) : open.clone(true)).attr("data-path", [path, files[i].name].join("/")))
+									.append(document.createTextNode(files[i].name))
+							);
+            }
+          }});
+        };
+
+        var handleFileClick = function(e) {
+          e.preventDefault();
+          var button = $(e.target);
+          if(button.is('img')) button = button.parent();
+
+          $.ajax({
+						data: JSON.stringify({
+							query: "mutation($directory: Directory!, $path: String!) { videoStart(directory: $directory, path: $path) }",
+							variables: {
+								directory: $("#navigation > .active").attr("data-directory"),
+								path: button.attr('data-path')
+							},
+						}),
+          });
+        };
+
+        var handleStopClick = function(e) {
+          e.preventDefault();
+          $.ajax({
+						data: JSON.stringify({
+							query: "mutation { videoStop }",
+						}),
+          });
+        };
+
+        var handleVolume = function(e, v) {
+          e.preventDefault();
+          var multiplier = v;
+          $.ajax({
+						data: JSON.stringify({
+							query: "mutation($multiplier: Int!) { volumeChange(multiplier: $multiplier) }",
+							variables: {
+								multiplier: multiplier
+							},
+						}),
+          });
+        };
+      })();
+    </script>
+  </body>
+</html>
