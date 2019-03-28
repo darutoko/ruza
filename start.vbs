@@ -1,1 +1,1 @@
-CreateObject("Wscript.Shell").Run "C:\Users\Alex\Web\sura\start.bat",0,True
+CreateObject("Wscript.Shell").Run "C:\Users\Alex\Web\ruza\start.bat",0,True
