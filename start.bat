@@ -1,2 +1,2 @@
 @echo off
-node app.js
+node "C:\Users\Alex\Web\ruza\app.js"

@@ -1,3 +1,4 @@
+process.chdir(__dirname);
 require("./config.js");
 
 let express = require("express");
