@@ -1,0 +1,14 @@
+[Unit]
+Description=Home multipurpose web app
+Documentation=
+After=network.target
+
+[Service]
+Environment=
+Type=simple
+User=darutoko
+ExecStart=/usr/bin/node /home/darutoko/Web/ruza/app.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
