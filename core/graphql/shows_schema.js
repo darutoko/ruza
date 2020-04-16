@@ -236,7 +236,9 @@ async function launchPuppeteer() {
 		// headless: false,
 		args: [
 			'--proxy-server="direct://"',
-			'--proxy-bypass-list=*'
+			'--proxy-bypass-list=*',
+			'--no-sandbox',
+			'--disable-setuid-sandbox'
 		],
 	});
 	let page = await browser.newPage();
