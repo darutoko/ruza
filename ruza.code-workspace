@@ -8,7 +8,7 @@
 		"editor.detectIndentation": false,
 		"editor.insertSpaces": false,
 		"editor.tabSize": 2,
-		"editor.formatOnSave": false,
+		"editor.formatOnSave": true,
 		"prettier.useTabs": true,
 		"prettier.semi": false,
 		"prettier.printWidth": 140,

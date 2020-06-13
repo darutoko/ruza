@@ -1,4 +1,3 @@
-let dotenv = require("dotenv");
+require("dotenv").config()
 
-dotenv.load();
-if (!process.env.PORT) process.env.PORT = 3000;
+if (!process.env.PORT) process.env.PORT = 3000

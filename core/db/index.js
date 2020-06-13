@@ -1,12 +1,7 @@
-let { Pool } = require("pg");
-let pool = new Pool();
+let show = require("./show")
+let season = require("./season")
 
 module.exports = {
-	query: (text, params) => {
-		if (process.env.NODE_ENV !== "production") console.log(text);
-		return pool.query(text, params);
-	},
-	client() {
-		return pool.connect();
-	}
-};
+	show,
+	season,
+}
