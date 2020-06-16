@@ -6,7 +6,6 @@ let dateType = new GraphQLScalarType({
 	serialize: dateToString,
 	parseValue: dateToString,
 	parseLiteral(ast) {
-		console.error(JSON.stringify(ast))
 		return ast
 	},
 })
@@ -23,23 +22,23 @@ let seasonType = new GraphQLObjectType({
 			type: GraphQLString,
 			description: "Season's episodes location on disk",
 		},
-		episodes_total: {
+		episodesTotal: {
 			type: new GraphQLNonNull(GraphQLInt),
 			description: "Season's total episodes number",
 		},
-		episodes_aired: {
+		episodesAired: {
 			type: new GraphQLNonNull(GraphQLInt),
 			description: "Season's episodes aired",
 		},
-		episode_last_at: {
+		episodeLastAt: {
 			type: new GraphQLNonNull(dateType),
 			description: "Season's next episode air date",
 		},
-		episode_next_at: {
+		episodeNextAt: {
 			type: new GraphQLNonNull(dateType),
 			description: "Season's next episode air date",
 		},
-		episode_final_at: {
+		episodeFinalAt: {
 			type: new GraphQLNonNull(dateType),
 			description: "Season's final episode air date",
 		},
@@ -75,7 +74,7 @@ let showType = new GraphQLObjectType({
 			type: new GraphQLNonNull(GraphQLInt),
 			description: "Show's total season number",
 		},
-		current_season: {
+		currentSeason: {
 			type: new GraphQLNonNull(GraphQLInt),
 			description: "Show's current season",
 		},
