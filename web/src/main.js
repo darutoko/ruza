@@ -1,16 +1,16 @@
-import Vue from 'vue'
-import './plugins/vuetify'
-import './plugins/graphql-query'
-import App from './App.vue'
-import router from './router'
-import store from './store'
-import { createProvider } from './vue-apollo'
+import Vue from "vue"
+import App from "./App.vue"
+import router from "./router"
+import store from "./store"
+import vuetify from "./plugins/vuetify"
+import fetcher from "./plugins/fetcher"
 
-Vue.config.productionTip = false;
+Vue.use(fetcher)
+Vue.config.productionTip = false
 
 new Vue({
 	router,
 	store,
-	apolloProvider: createProvider(),
-	render: h => h(App)
-}).$mount('#app')
+	vuetify,
+	render: h => h(App),
+}).$mount("#app")
