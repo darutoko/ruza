@@ -2,11 +2,13 @@ let pg = require("./pg")
 
 module.exports = {
 	all() {
-		return pg.query("select * from show left join season on show.id = season.show_id and show.current_season = season.num;")
+		return pg.query(
+			'select * from "show" left join "season" on "show"."id" = "season"."showId" and "show"."currentSeason" = "season"."num";'
+		)
 	},
 	one({ id }) {
 		return pg.query(
-			"select * from show left join season on show.id = season.show_id and show.current_season = season.num where show.id = $1;",
+			'select * from "show" left join "season" on "show"."id" = "season"."showId" and "show"."currentSeason" = "season"."num" where "show"."id" = $1;',
 			[id]
 		)
 	},
