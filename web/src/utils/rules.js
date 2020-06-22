@@ -1,6 +1,6 @@
 module.exports = {
 	textRequired(value) {
-		if (value !== "") return true;
-		return "Поле необходимо заполнить";
+		if (value !== "") return true
+		return "Field is required"
 	},
 }
