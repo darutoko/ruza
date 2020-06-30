@@ -1,197 +1,181 @@
 <template>
-	<v-layout column>
-		<v-flex mb-3>
-			<v-text-field
-				ref="addInput"
-				label="Добавить"
-				v-if="isAdmin"
-				v-model.trim="add.value"
-				:disabled="add.loading"
-				:loading="add.loading"
-				:rules="add.rules"
-				@keyup.enter="addShow"
-				required
-			></v-text-field>
-		</v-flex>
-		<v-flex>
-			<v-card v-for="(show, i) in shows" :key="show.id">
-				<v-hover>
-					<v-card-title slot-scope="{hover}" class="blue darken-2 white--text pa-2">
-						<v-btn
-							v-if="!isAdmin && show.season && show.season.episodes_total && show.season.episodes_total === show.season.episodes_aired"
-							icon small ripple
-							class="ma-0"
-							title="Сезон закончен">
-							<v-icon color="teal lighten-3">done</v-icon>
-						</v-btn>
-						<v-btn
-							v-else
-							icon small ripple
-							class="ma-0"
-							title="Обновить"
-							:disabled="sync.loading"
-							@click.stop="syncShow(i)">
-							<v-icon color="grey lighten-5">sync</v-icon>
-						</v-btn>
-						<div class="headline ml-1">
-							<a class="white--text" style="text-decoration: none;" :href="show.url" target="_blank">{{ show.title }} S{{ show.current_season.toString().padStart(2, "0")}}</a>
-						</div>
-						<v-spacer></v-spacer>
-						<v-btn
-							icon small ripple
-							class="my-0"
-							title="Изменить"
-							v-if="isAdmin && hover"
-							:to="{name: 'shows_show', params: {id: show.id}}">
-							<v-icon color="grey lighten-5">edit</v-icon>
-						</v-btn>
-						<v-btn
-							icon ripple small
-							class="my-0"
-							title="Удалить"
-							v-if="isAdmin && hover"
-							@click.stop="confirmDelete(i)">
-							<v-icon color="error">delete</v-icon>
-						</v-btn>
-					</v-card-title>
-				</v-hover>
+	<v-container>
+		<v-row align="center" v-if="isAdmin">
+			<v-col cols="auto" class="text-right">
+				<v-btn color="blue darken-3" title="Add show" :loading="add.isLoading" @click="handleAddShow" icon large dark>
+					<v-icon large>mdi-plus-circle</v-icon>
+				</v-btn>
+			</v-col>
+			<v-col>
+				<v-form v-model="add.isValid" @submit.prevent>
+					<v-text-field
+						v-model="add.value"
+						label="Add show"
+						:disabled="add.isLoading"
+						:rules="add.rules"
+						@keyup.enter="handleAddShow"
+						required
+					></v-text-field>
+				</v-form>
+			</v-col>
+		</v-row>
 
-				<v-card-text v-if="show.season">
-					<v-layout wrap>
-						<v-flex xs6 md3>
-							<v-icon title="Эпизоды">tv</v-icon> {{ show.season.episodes_aired }} / {{ show.season.episodes_total }}
-						</v-flex>
-						<v-flex xs6 md3>
-							<v-icon title="Предыдущий">date_range</v-icon> {{ show.season.episode_last_at }}
-						</v-flex>
-						<v-flex xs6 md3>
-							<v-icon title="Следующий">date_range</v-icon> {{ show.season.episode_next_at }}
-						</v-flex>
-						<v-flex xs6 md3>
-							<v-icon title="Последний">event_available</v-icon> {{ show.season.episode_final_at }}
-						</v-flex>
-					</v-layout>
-				</v-card-text>
-			</v-card>
+		<v-row>
+			<v-col>
+				<v-card v-for="(show, i) in shows" :key="show.id">
+					<v-hover v-slot:default="{ hover }">
+						<v-card-title class="blue darken-3 ">
+							<v-btn
+								icon
+								v-if="!isAdmin && show.season && show.season.episodesTotal && show.season.episodesTotal === show.season.episodesAired"
+								title="Season ended"
+							>
+								<v-icon color="green lighten-3">mdi-check-outline</v-icon>
+							</v-btn>
+							<v-btn icon v-else title="Sync" :disabled="isSyncing" @click.stop="handleSyncClick(i)">
+								<v-icon color="white">mdi-sync</v-icon>
+							</v-btn>
+							<a class="ml-2 white--text" style="text-decoration: none;" :href="show.url" target="_blank">
+								{{ show.title }} S{{ show.currentSeason.toString().padStart(2, "0") }}
+							</a>
+							<v-spacer></v-spacer>
+							<v-btn icon title="Edit show" v-if="isAdmin && hover" :to="{ name: 'shows_show', params: { id: show.id } }">
+								<v-icon color="white">mdi-pencil</v-icon>
+							</v-btn>
+							<v-btn icon title="Delete show" v-if="isAdmin && hover" @click.stop="handleDeleteClick(i)">
+								<v-icon color="red darken-3">mdi-delete</v-icon>
+							</v-btn>
+						</v-card-title>
+					</v-hover>
 
-      <DialogDelete
-        :shown="remove.dialog"
-        :loading="remove.loading"
-        :name="deleteTitle"
-        @confirm-click="deleteShow"
-        @cancel-click="clearDelete()"
-      />
-		</v-flex>
-	</v-layout>
+					<v-card-text v-if="show.season">
+						<v-row>
+							<v-col cols="6" md="3">
+								<v-icon title="Episodes">mdi-television-play</v-icon> {{ show.season.episodesAired }} / {{ show.season.episodesTotal }}
+							</v-col>
+							<v-col cols="6" md="3"> <v-icon title="Previous">mdi-calendar-arrow-left</v-icon> {{ show.season.episodeLastAt }} </v-col>
+							<v-col cols="6" md="3"> <v-icon title="Next">mdi-calendar-arrow-right</v-icon> {{ show.season.episodeNextAt }} </v-col>
+							<v-col cols="6" md="3"> <v-icon title="Last">mdi-calendar-check</v-icon> {{ show.season.episodeFinalAt }} </v-col>
+						</v-row>
+					</v-card-text>
+				</v-card>
+
+				<DialogDelete v-model="dialog.isVisible" :isLoading="dialog.isLoading" @confirm-click="handleConfirmClick">
+					Delete show "<strong>{{ this.dialog.show.title }}</strong
+					>"?
+				</DialogDelete>
+			</v-col>
+		</v-row>
+	</v-container>
 </template>
 
 <script>
-import DialogDelete from "@/components/DialogDelete.vue";
-import { textRequired } from "@/utils/rules.js";
+import { textRequired } from "@/utils/rules.js"
+import DialogDelete from "@/components/DialogDelete"
 
 export default {
 	name: "List",
-  components: { DialogDelete },
+	components: {
+		DialogDelete,
+	},
 	data() {
 		return {
+			shows: [],
+			isSyncing: false,
 			add: {
 				value: "",
-				loading: false,
-				rules: [textRequired, this.uniqueShow]
+				isLoading: false,
+				isValid: true,
+				rules: [textRequired, this.showUniqueRule],
 			},
-			remove: {
-				index: null,
-				dialog: false,
-				loading: false
+			dialog: {
+				index: 0,
+				show: {},
+				isVisible: false,
+				isLoading: false,
 			},
-			sync: {
-				loading: false,
-			},
-			shows: [],
-			showFields: "id url title seasons current_season search uploaded",
-			seasonFields: "num directory episodes_total episodes_aired episode_last_at episode_next_at episode_final_at",
+			showFields: "id url title seasonsTotal currentSeason",
+			seasonFields: "num episodesTotal episodesAired episodeLastAt episodeNextAt episodeFinalAt",
 		}
 	},
-  computed: {
-    isAdmin() {
-      return this.$store.state.user.isAdmin;
+	computed: {
+		isAdmin() {
+			return this.$store.state.user.isAdmin
 		},
-		deleteTitle() {
-			let show = this.shows[this.remove.index];
-			if (!show) return "";
-			return show.title;
-		}
-  },
+	},
+	// watch: {},
 	methods: {
-    fetchList() {
-			this.graphql({
+		async handleAddShow() {
+			if (!this.add.isValid) return
+			let data = await this.$fetcher({
+				toggle: value => (this.add.isLoading = value),
+				payload: {
+					query: "mutation($url: String!){ addShow(url: $url) { " + this.showFields + " season { " + this.seasonFields + " } } }",
+					variables: {
+						url: this.add.value,
+					},
+				},
+			})
+
+			if (!data) return
+			this.add.value = ""
+			this.shows.push(data.addShow)
+		},
+		handleDeleteClick(index) {
+			this.dialog.index = index
+			this.dialog.show = this.shows[index]
+			this.dialog.isVisible = true
+		},
+		async handleConfirmClick() {
+			let data = await this.$fetcher({
+				toggle: value => (this.dialog.isLoading = value),
+				payload: {
+					query: "mutation($id: Int!){ deleteShow(id: $id) }",
+					variables: {
+						id: this.dialog.show.id,
+					},
+				},
+			})
+
+			this.dialog.isVisible = false
+			if (!data.deleteShow) return
+			this.shows.splice(this.dialog.index, 1)
+			this.$store.commit("success", `Show "${this.dialog.show.title}" has been deleted!`)
+		},
+		async handleSyncClick(i) {
+			let show = this.shows[i]
+			let data = await this.$fetcher({
+				toggle: value => (this.isSyncing = value),
+				payload: {
+					query: "mutation($id: Int!){ syncShow(id: $id) { season { " + this.seasonFields + " } } }",
+					variables: {
+						id: show.id,
+					},
+				},
+			})
+
+			if (!data) return
+			show.season = data.syncShow.season
+		},
+		showUniqueRule(value) {
+			let title = /tt\d+/.exec(value)
+			if (!title) return "Invalid url format"
+			if (this.shows.some(show => show.url.includes(title[0]))) return "Show already in the list"
+			return true
+		},
+	},
+	async created() {
+		let data = await this.$fetcher({
+			payload: {
 				query: "{ shows { " + this.showFields + " season { " + this.seasonFields + " } } }",
 			},
-			data => {
-        this.shows = data.shows.sort((a,b) => !a.season ? 1 : !b.season ? -1 : a.season.episodes_total - a.season.episodes_aired < b.season.episodes_total - b.season.episodes_aired);
-			});
-    },
-		addShow() {
-			if (!this.$refs.addInput.validate()) return;
-			this.graphql({
-				mutation: "mutation($url: String!){ addShow(url: $url) { " + this.showFields + " season { " + this.seasonFields + " } } }",
-				variables: {
-					url: this.add.value
-				},
-				loadingKey: "add",
-			},
-			data => {
-				this.$store.commit("success", `Сериал "${data.addShow.title}" добавлен`);
-				this.shows.push(data.addShow);
-				this.add.value = "";
-				this.$refs.addInput.resetValidation();
-			});
-		},
-		syncShow(i) {
-			let show = this.shows[i];
-			this.graphql({
-				mutation: "mutation($id: Int!){ syncShow(id: $id) { season { " + this.seasonFields + " } } }",
-				variables: {
-					id: show.id
-				},
-				loadingKey: "sync",
-			},
-			data => {
-				this.$store.commit("snackbar", `Сериал "${show.title}" обновлен`);
-				show.season = data.syncShow.season;
-			});
-		},
-		deleteShow() {
-			this.graphql({
-				mutation: "mutation($id: Int!){ deleteShow(id: $id) { title } }",
-				variables: {
-					id: this.shows[this.remove.index].id
-				},
-				loadingKey: "remove",
-			},
-			data => {
-				this.shows.splice(this.remove.index, 1);
-				this.$store.commit("success", `Сериал ${data.deleteShow.title} удален`);
-				this.clearDelete();
-			});
-		},
-		confirmDelete(i) {
-			this.remove.index = i;
-			this.remove.dialog = true;
-		},
-		clearDelete() {
-      this.remove.index = null;
-      this.remove.dialog = false;
-		},
-		uniqueShow(url) {
-			let value = /tt\d+/.exec(url);
-			if (!value) return "Неверный формат ссылки";
-			if (this.shows.some(show => show.url.includes(value[0]))) return "Сериал уже в списке";
-			return true;
-		},
+		})
+
+		if (!data) return
+		this.shows = data.shows.sort((a, b) =>
+			!a.season ? 1 : !b.season ? -1 : a.season.episodesTotal - a.season.episodesAired - (b.season.episodesTotal - b.season.episodesAired)
+		)
 	},
-	mounted() {
-		this.fetchList();
-	}
+	// mounted() {},
 }
 </script>

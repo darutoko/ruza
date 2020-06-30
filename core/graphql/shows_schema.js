@@ -76,17 +76,8 @@ module.exports = {
 				id: {
 					type: new GraphQLNonNull(GraphQLInt),
 				},
-				currentSeason: {
-					type: GraphQLInt,
-				},
-				search: {
-					type: GraphQLString,
-				},
-				uploaded: {
-					type: GraphQLString,
-				},
-				directory: {
-					type: GraphQLString,
+				season: {
+					type: new GraphQLNonNull(GraphQLInt),
 				},
 			},
 			resolve(source, arguments, context, info) {
@@ -96,7 +87,7 @@ module.exports = {
 		},
 
 		deleteShow: {
-			type: new GraphQLNonNull(showType),
+			type: new GraphQLNonNull(GraphQLInt),
 			args: {
 				id: {
 					type: new GraphQLNonNull(GraphQLInt),
@@ -104,7 +95,7 @@ module.exports = {
 			},
 			resolve(source, arguments, context, info) {
 				checkAuthorization(context)
-				return db.show.delete(arguments).then(res => res.rows[0])
+				return db.show.delete(arguments).then(res => res.rowCount)
 			},
 		},
 	},

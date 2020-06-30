@@ -1,10 +1,26 @@
 <template>
-  <v-layout column>
-    <v-flex class="display-3 red--text text--darken-2 text-xs-center">Access denied</v-flex>
-    <v-flex class="display-3 red--text text--darken-2 text-xs-center">Доступ запрещен</v-flex>
-  </v-layout>
+	<v-container>
+		<v-row align="center">
+			<v-col>
+				<p class="text-h3 text-center font-weight-bold red--text text--darken-3">Access denied</p>
+			</v-col>
+		</v-row>
+	</v-container>
 </template>
 
 <script>
-export default {};
+export default {
+	name: "Forbidden",
+	// components: {},
+	data() {
+		return {
+			//
+		}
+	},
+	// computed: {},
+	// watch: {},
+	// methods: {},
+	// created() {},
+	// mounted() {},
+}
 </script>

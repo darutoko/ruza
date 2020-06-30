@@ -19,13 +19,13 @@ export default {
 			try {
 				let response = await fetch("/api", init)
 
+				data = await response.json()
+				if (data.errors) throw new Error(data.errors[0].message)
+
 				if (response.status >= 500) throw new Error(response.statusText)
 				let contentType = response.headers.get("content-type")
 				if (!contentType || !contentType.includes("application/json"))
 					throw new Error("Expected JSON response from server but got: " + contentType)
-
-				data = await response.json()
-				if (data.errors) throw new Error(data.errors[0].message)
 
 				data = data.data
 				if (autofill) for (let key in data) this[key] = data[key]

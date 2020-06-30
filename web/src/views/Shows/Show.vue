@@ -1,135 +1,78 @@
 <template>
-	<v-form ref="form" @submit.prevent="updateShow">
-		<v-layout column>
-			<v-flex mb-3><h6 class="title">{{ show.title }}</h6></v-flex>
-			<v-flex>
-				<v-select
-					v-model="form.current_season"
-					:items="seasonsList"
-					label="Сезон"
-					required></v-select>
-			</v-flex>
-			<v-flex>
-        <v-text-field v-model.trim="form.search" label="Поиск по" :rules="textRules" required></v-text-field>
-			</v-flex>
-			<v-flex>
-        <v-text-field v-model.trim="form.uploaded" label="Загружен пользователем" :rules="textRules" required></v-text-field>
-			</v-flex>
-			<v-flex>
-        <v-text-field v-if="isSeasonSynced" v-model.trim="form.directory" label="Директория" :rules="textRules" required></v-text-field>
-			</v-flex>
-			<v-flex>
-				<v-layout>
-					<v-flex>
-        <v-btn color="primary" outline :disabled="form.loading" :to="{ name: 'shows_list' }">
-          <v-icon>navigate_before</v-icon>Назад
-        </v-btn>
-					</v-flex>
-					<v-flex shrink>
-        <v-btn color="warning" :disabled="form.loading" @click.prevent="resetForm">Сброосить</v-btn>
-        <v-btn
-					type="submit"
-          color="success"
-          :loading="form.loading"
-          :disabled="form.loading"
-        >Сохранить</v-btn>
-					</v-flex>
-				</v-layout>
-			</v-flex>
-		</v-layout>
+	<v-form v-model="update.isValid" @submit.prevent="handleUpdateSubmit">
+		<v-container>
+			<v-row>
+				<v-col cols="auto">
+					<v-btn color="black" :to="{ name: 'shows_list' }" text><v-icon>mdi-arrow-left</v-icon> Go back</v-btn>
+				</v-col>
+				<v-col class="text-h5">
+					{{ show.title }}
+				</v-col>
+			</v-row>
+			<v-row>
+				<v-col>
+					<v-select v-model="update.season" :items="seasonsList" label="Season" required></v-select>
+				</v-col>
+			</v-row>
+			<v-row>
+				<v-col>
+					<v-btn color="green darken-3" type="submit" :loading="update.isLoading" dark>Save</v-btn>
+				</v-col>
+			</v-row>
+		</v-container>
 	</v-form>
 </template>
 
 <script>
-import { textRequired } from "@/utils/rules.js";
-
 export default {
 	name: "Show",
 	// components: {},
 	data() {
 		return {
-			form: {
-				directory: "",
-				search: "",
-				uploaded: "",
-				loading: false,
-				current_season: null,
-			},
-			textRules: [textRequired],
 			show: {},
-			seasons: [],
-			isSeasonSynced: false,
-			showFields: "id url title seasons current_season search uploaded",
-			seasonFields: "num directory episodes_total episodes_aired episode_last_at episode_next_at episode_final_at",
+			update: {
+				season: 1,
+				isLoading: false,
+				isValid: true,
+			},
+			showFields: "id url title seasonsTotal currentSeason",
 		}
 	},
 	computed: {
 		seasonsList() {
-			if (!this.show.seasons) return [];
-			let arr = [...Array(this.show.seasons + 1).keys()];
-			arr.shift();
-			return arr;
-		}
+			let list = []
+			if (this.show.seasonsTotal) for (let s = 1; s <= this.show.seasonsTotal; s++) list.push(s)
+			return list
+		},
 	},
-	watch: {
-		"form.current_season": function (value) {
-			let season = this.getSeason(value);
-			if (season) {
-				this.form.directory = season.directory;
-				this.isSeasonSynced = true;
-			} else {
-				this.form.directory = "";
-				this.isSeasonSynced = false;
-			}
-      this.$refs.form.resetValidation();
-		}
-	},
+	// watch: {},
 	methods: {
-		fetchShow() {
-			this.graphql({
-				query: "query($id: Int!){ show(id: $id) { " + this.showFields + "  } seasons(show_id: $id) { " + this.seasonFields + " } }",
+		async handleUpdateSubmit() {
+			await this.$fetcher({
+				payload: {
+					query: "mutation($id: Int!, $season: Int!){ updateShow(id: $id, season: $season) }",
+					variables: {
+						id: this.$route.params.id,
+						season: this.update.season,
+					},
+				},
+				toggle: value => (this.update.isLoading = value),
+			})
+			this.$store.commit("success", "Show updated")
+		},
+	},
+	async created() {
+		await this.$fetcher({
+			autofill: true,
+			payload: {
+				query: "query($id: Int!){ show(id: $id) { " + this.showFields + " } }",
 				variables: {
-					id: this.$route.params.id
+					id: this.$route.params.id,
 				},
 			},
-			data => {
-				this.show = data.show;
-				this.seasons = data.seasons;
-				this.resetForm();
-			});
-		},
-		updateShow() {
-			if (!this.$refs.form.validate()) return;
-
-			let variables = {id: this.$route.params.id};
-			let season = this.getSeason(this.form.current_season);
-			if (season && season.directory !== this.form.directory) variables.directory = this.form.directory;
-			["current_season", "search", "uploaded"].forEach(key => { if (this.show[key] !== this.form[key]) variables[key] = this.form[key] });
-
-			if (Object.keys(variables).length <= 1) return alert("Нет изменений в данных");
-
-			this.graphql({
-				mutation: "mutation($id: Int!, $current_season: Int, $search: String, $uploaded: String, $directory: String){ updateShow(id: $id, current_season: $current_season, search: $search, uploaded: $uploaded, directory: $directory) }",
-				variables,
-				loadingKey: "form",
-			},
-			() => {
-				this.resetForm();
-				this.$router.replace({ name: "shows_list" });
-			});
-		},
-		resetForm() {
-			this.form.current_season = this.show.current_season;
-			this.form.search = this.show.search;
-			this.form.uploaded = this.show.uploaded;
-		},
-		getSeason(num) {
-			return this.seasons.find(season => season.num === num);
-		},
+		})
+		this.update.season = this.show.currentSeason
 	},
-	// created() {},
-	mounted() {
-		this.fetchShow();
-	},
+	// mounted() {},
 }
 </script>
