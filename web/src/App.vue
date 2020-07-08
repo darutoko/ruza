@@ -20,9 +20,11 @@
 						<v-alert v-for="(alert, index) in $store.state.alerts" :color="alert.color" :type="alert.type" :key="index" dark dismissible>
 							{{ alert.message }}
 						</v-alert>
-						<v-snackbar :value="$store.state.snackbar.isVisible" :timeout="$store.state.snackbar.timeout" left>
+						<v-snackbar v-model="isSnackbar" :timeout="$store.state.snackbar.timeout" left>
 							{{ $store.state.snackbar.message }}
-							<v-btn @click="handleCloseSnackbar" text dark>Close</v-btn>
+							<template v-slot:action>
+								<v-btn @click="handleCloseSnackbar" text dark>Close</v-btn>
+							</template>
 						</v-snackbar>
 					</v-col>
 				</v-row>
@@ -48,7 +50,16 @@ export default {
 			isDrawer: null,
 		}
 	},
-	// computed: {},
+	computed: {
+		isSnackbar: {
+			get() {
+				return this.$store.state.snackbar.isVisible
+			},
+			set(value) {
+				this.$store.commit("hideSnackbar")
+			},
+		},
+	},
 	// watch: {},
 	methods: {
 		handleNavIconClick() {
