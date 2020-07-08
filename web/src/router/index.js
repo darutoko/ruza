@@ -48,7 +48,7 @@ const routes = [
 				path: "type",
 				name: "food_type",
 				beforeEnter: adminOnly,
-				component: () => import("@/views/Food/Ingredient.vue"),
+				component: () => import("@/views/Food/Type.vue"),
 			},
 		],
 	},

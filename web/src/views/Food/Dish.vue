@@ -1,139 +1,163 @@
 <template>
-	<v-form ref="form" @submit.prevent="saveDish">
-		<v-layout column>
-			<v-flex>
-        <v-text-field v-model.trim="form.name" label="Название" :rules="textRules" required></v-text-field>
-			</v-flex>
-			<v-flex>
-        <v-select
-          v-model="form.typeId"
-          :items="types"
-          item-text="name"
-          item-value="id"
-          label="Вид"
-          required></v-select>
-			</v-flex>
-			<v-flex>
-        <v-select
-          v-model="form.ingredients"
-          :items="ingredients"
-          :rules="multiSelectRules"
-          item-text="name"
-          item-value="id"
-          label="Ингредиенты"
-          multiple chips required></v-select>
-			</v-flex>
-			<v-flex>
-        <v-textarea v-model="form.recipe" label="Рецепт"></v-textarea>
-			</v-flex>
-			<v-flex>
-				<v-layout wrap>
-					<v-flex xs12 sm6>
-						<v-btn color="primary" outline :to="{ name: 'food_list' }">
-							<v-icon>navigate_before</v-icon>Назад
-						</v-btn>
-					</v-flex>
-					<v-flex xs5 sm6	class="text-sm-right text-xs-left">
-						<v-btn color="warning" :disabled="form.loading" @click.prevent="resetForm">Сброосить</v-btn>
-						<v-btn
-							type="submit"
-							color="success"
-							:loading="form.loading"
-							:disabled="form.loading">Сохранить</v-btn>
-					</v-flex>
-				</v-layout>
-			</v-flex>
-		</v-layout>
+	<v-form ref="form" :disabled="form.isLoading" @submit.prevent="handleSubmitForm">
+		<v-container v-if="isDataAvaliable">
+			<RowSubheader :to="{ name: 'food_list' }">{{ dish.name || "New Dish" }}</RowSubheader>
+
+			<v-row>
+				<v-col>
+					<v-text-field v-model.trim="form.name" label="Name" :rules="textRules" required></v-text-field>
+				</v-col>
+			</v-row>
+
+			<v-row>
+				<v-col>
+					<v-select
+						v-model="form.typeId"
+						:items="types"
+						item-text="name"
+						item-value="id"
+						label="Type"
+						:rules="selectRules"
+						required
+					></v-select>
+				</v-col>
+			</v-row>
+
+			<v-row>
+				<v-col>
+					<v-select
+						v-model="form.ingredients"
+						:items="ingredients"
+						:rules="multiSelectRules"
+						item-text="name"
+						item-value="id"
+						label="Ingredients"
+						multiple
+						chips
+						required
+					></v-select>
+				</v-col>
+			</v-row>
+
+			<v-row>
+				<v-col>
+					<v-textarea v-model="form.recipe" label="Recipe" outlined></v-textarea>
+				</v-col>
+			</v-row>
+
+			<v-row>
+				<v-col>
+					<v-btn color="blue darken-3" type="submit" :loading="form.isLoading" dark>Save</v-btn>
+				</v-col>
+				<v-col cols="auto">
+					<v-btn color="gray darken-3" :disabled="form.isLoading" @click.prevent="handleResetClick" dark>Reset</v-btn>
+				</v-col>
+			</v-row>
+		</v-container>
+		<v-container v-else>
+			<v-row>
+				<v-col>
+					No data available
+				</v-col>
+			</v-row>
+		</v-container>
 	</v-form>
 </template>
 
 <script>
-import { textRequired } from "@/utils/rules.js";
+import { textRequired } from "@/utils/rules.js"
+import RowSubheader from "@/components/RowSubheader"
 
 export default {
-  name: "Dish",
-  data() {
-    return {
-      types: [],
-      ingredients: [],
-      dish: {
-        name: "",
-        typeId: null,
-        ingredients: [],
-        recipe: ""
-      },
-      form: {
-        loading: false,
-        name: "",
-        typeId: null,
-        ingredients: [],
-        recipe: ""
-      },
+	name: "Dish",
+	components: { RowSubheader },
+	data() {
+		return {
+			dish: {
+				name: "",
+				typeId: null,
+				ingredients: [],
+				recipe: "",
+			},
+			types: [],
+			ingredients: [],
+			form: {},
 			textRules: [textRequired],
-      multiSelectRules: [this.multiSelectOneOrMore]
-    };
-  },
-  methods: {
-    fetchData() {
-      let prefix = "{";
-      if (this.$route.params.id) prefix = `query($id: Int!) { dish(id: $id) { id name typeId recipe ingredients { id } }`;
+			selectRules: [this.selectRequired],
+			multiSelectRules: [this.multiSelectOneOrMore],
+		}
+	},
+	computed: {
+		isDataAvaliable() {
+			return this.types.length > 0 && this.ingredients.length > 0
+		},
+	},
+	watch: {
+		dish() {
+			this.dish.ingredients = this.dish.ingredients.map(ingredient => ingredient.id)
+			this.resetForm()
+		},
+	},
+	methods: {
+		async handleSubmitForm() {
+			if (!this.$refs.form.validate()) return
 
-			this.graphql({
-				query: `${prefix} types { id name } ingredients { id name } }`,
+			if (this.$route.params.id) {
+				var message = "Dish updated"
+				var query =
+					"mutation($id: Int!, $name: String!, $typeId: Int!, $recipe: String, $ingredients: [Int!]) { updateDish(id: $id, name: $name, typeId: $typeId, recipe: $recipe, ingredients: $ingredients)}"
+			} else {
+				var message = "Dish added"
+				var query =
+					"mutation($name: String!, $typeId: Int!, $recipe: String, $ingredients: [Int!]) { addDish(name: $name, typeId: $typeId, recipe: $recipe, ingredients: $ingredients) }"
+			}
+
+			let data = await this.$fetcher({
+				toggle: value => (this.form.isLoading = value),
+				payload: {
+					query,
+					variables: {
+						id: this.$route.params.id,
+						...this.form,
+					},
+				},
+			})
+
+			if (!data) return
+			this.$store.commit("showSnackbar", message)
+			this.$router.replace({ name: "food_list" })
+		},
+		handleResetClick() {
+			this.resetForm()
+			this.$refs.form.resetValidation()
+		},
+		selectRequired(value) {
+			if (value) return true
+			return "An option is required"
+		},
+		multiSelectOneOrMore(value) {
+			if (value.length > 0) return true
+			return "At least 1 option is required"
+		},
+		resetForm() {
+			this.form = { isLoading: false, ...JSON.parse(JSON.stringify(this.dish)) }
+		},
+	},
+	created() {
+		this.resetForm()
+		let prefix = "{"
+		if (this.$route.params.id) prefix = "query($id: Int!) { dish(id: $id) { id name typeId recipe ingredients { id name } }"
+
+		this.$fetcher({
+			autofill: true,
+			payload: {
+				query: prefix + " types { id name } ingredients { id name } }",
 				variables: {
-					id: this.$route.params.id
+					id: this.$route.params.id,
 				},
 			},
-			data => {
-				if (this.$route.params.id) this.dish = data.dish;
-				this.types = data.types;
-				this.ingredients = data.ingredients;
-				this.resetForm();
-			});
-    },
-    saveDish() {
-      if (!this.$refs.form.validate()) return;
-
-      if (this.$route.params.id) this.updateDish()
-			else this.addDish();
-    },
-    addDish() {
-			this.graphql({
-				mutation: "mutation($name: String!, $typeId: Int!, $recipe: String, $ingredients: [Int!]) { addDish(name: $name, typeId: $typeId, recipe: $recipe, ingredients: $ingredients) }",
-				variables: { ...this.form },
-				loadingKey: "form",
-			},
-			data => {
-				this.resetForm();
-				this.$store.commit("success", `Блюдо ${this.form.name} добавлено с ID ${data.addDish}`);
-			});
-    },
-    updateDish() {
-			this.graphql({
-				mutation: "mutation($id: Int!, $name: String!, $typeId: Int!, $recipe: String, $ingredients: [Int!]) { updateDish(id: $id, name: $name, typeId: $typeId, recipe: $recipe, ingredients: $ingredients)}",
-				variables: { ...this.form, id: this.$route.params.id },
-				loadingKey: "form",
-			},
-			() => {
-				this.resetForm();
-				this.$store.commit("success", `Блюдо ${this.form.name} обновлено`);
-				this.$router.replace({ name: "food_list" });
-			});
-    },
-    resetForm() {
-      this.form.name = this.dish.name;
-      this.form.typeId = this.dish.typeId || this.types[0].id;
-      this.form.ingredients = this.dish.ingredients.map(ingredient => ingredient.id);
-      this.form.recipe = this.dish.recipe;
-      this.$refs.form.resetValidation();
-    },
-    multiSelectOneOrMore(value) {
-      if (value.length > 0) return true;
-      return "Необходимо выбрать хотя бы один элемент";
-    }
-  },
-  mounted() {
-    this.fetchData();
-  }
-};
+		})
+	},
+	// mounted() {},
+}
 </script>

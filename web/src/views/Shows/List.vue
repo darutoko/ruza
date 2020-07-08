@@ -26,24 +26,25 @@
 					<v-hover v-slot:default="{ hover }">
 						<v-card-title class="blue darken-3 ">
 							<v-btn
-								icon
 								v-if="!isAdmin && show.season && show.season.episodesTotal && show.season.episodesTotal === show.season.episodesAired"
+								color="green lighten-3"
 								title="Season ended"
+								icon
 							>
-								<v-icon color="green lighten-3">mdi-check-outline</v-icon>
+								<v-icon>mdi-check-outline</v-icon>
 							</v-btn>
-							<v-btn icon v-else title="Sync" :disabled="isSyncing" @click.stop="handleSyncClick(i)">
-								<v-icon color="white">mdi-sync</v-icon>
+							<v-btn v-else color="white" title="Sync" :disabled="isSyncing" @click.stop="handleSyncClick(i)" icon>
+								<v-icon>mdi-sync</v-icon>
 							</v-btn>
 							<a class="ml-2 white--text" style="text-decoration: none;" :href="show.url" target="_blank">
 								{{ show.title }} S{{ show.currentSeason.toString().padStart(2, "0") }}
 							</a>
 							<v-spacer></v-spacer>
-							<v-btn icon title="Edit show" v-if="isAdmin && hover" :to="{ name: 'shows_show', params: { id: show.id } }">
-								<v-icon color="white">mdi-pencil</v-icon>
+							<v-btn v-if="isAdmin && hover" color="white" title="Edit show" :to="{ name: 'shows_show', params: { id: show.id } }" icon>
+								<v-icon>mdi-pencil</v-icon>
 							</v-btn>
-							<v-btn icon title="Delete show" v-if="isAdmin && hover" @click.stop="handleDeleteClick(i)">
-								<v-icon color="red darken-3">mdi-delete</v-icon>
+							<v-btn v-if="isAdmin && hover" color="red darken-3" title="Delete show" @click.stop="handleDeleteClick(i)" icon>
+								<v-icon>mdi-delete</v-icon>
 							</v-btn>
 						</v-card-title>
 					</v-hover>

@@ -21,6 +21,6 @@ order by "ingredient"."name" ASC;
 	async delete({ id }) {
 		let result = await pg.query('select count(*) from "dishIngredient" where "ingredientId" = $1;', [id])
 		if (result.rows[0].count > 0) throw new Error("Невозможно удалить ингредиент, пока он используется в блюдах.")
-		return db.query('delete from "ingredient" where "id" = $1;', [id])
+		return pg.query('delete from "ingredient" where "id" = $1;', [id])
 	},
 }

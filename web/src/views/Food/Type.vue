@@ -1,40 +1,40 @@
 <template>
 	<v-container>
-		<RowSubheader :to="{ name: 'food_list' }">Ingredients</RowSubheader>
+		<RowSubheader :to="{ name: 'food_list' }">Types</RowSubheader>
 
 		<v-row>
 			<v-col>
 				<v-form ref="add" @submit.prevent="handleAddSubmit">
 					<v-row align="center">
 						<v-col cols="auto">
-							<v-btn color="blue darken-3" title="Add ingredient" type="submit" :loading="add.isLoading" icon large dark>
+							<v-btn color="blue darken-3" title="Add type" type="submit" :loading="add.isLoading" icon large dark>
 								<v-icon large>mdi-plus-circle</v-icon>
 							</v-btn>
 						</v-col>
 						<v-col>
-							<v-text-field v-model.trim="add.name" label="Ingredient name" :rules="add.rules" :disabled="add.isLoading"></v-text-field>
+							<v-text-field v-model.trim="add.name" label="Type name" :rules="add.rules" :disabled="add.isLoading"></v-text-field>
 						</v-col>
 					</v-row>
 				</v-form>
 			</v-col>
 		</v-row>
 
-		<template v-for="(ingredient, i) in ingredients">
-			<v-row v-if="edit.index !== i" :key="ingredient.id" align="center" :style="bgcolor(i)">
+		<template v-for="(type, i) in types">
+			<v-row v-if="edit.index !== i" :key="type.id" align="center" :style="bgcolor(i)">
 				<v-col>
-					{{ ingredient.name }}
+					{{ type.name }}
 				</v-col>
 				<v-col cols="auto">
-					<v-btn color="blue darken-3" title="Edit ingredient" @click="handleEditClick(i)" icon>
+					<v-btn color="blue darken-3" title="Edit type" @click="handleEditClick(i)" icon>
 						<v-icon>mdi-pencil</v-icon>
 					</v-btn>
-					<v-btn color="red darken-3" title="Delete ingredient" @click="handleDeleteClick(i)" icon>
+					<v-btn color="red darken-3" title="Delete type" @click="handleDeleteClick(i)" icon>
 						<v-icon>mdi-delete</v-icon>
 					</v-btn>
 				</v-col>
 			</v-row>
 
-			<v-row v-else :key="ingredient.id" align="center">
+			<v-row v-else :key="type.id" align="center">
 				<v-col>
 					<v-form ref="edit" :disabled="edit.isLoading" @submit.prevent="handleEditSubmit">
 						<v-container fluid>
@@ -45,7 +45,7 @@
 									</v-btn>
 								</v-col>
 								<v-col>
-									<v-text-field v-model="edit.name" label="Ingredient name" :rules="edit.rules"></v-text-field>
+									<v-text-field v-model="edit.name" label="Type name" :rules="edit.rules"></v-text-field>
 								</v-col>
 								<v-col cols="auto">
 									<v-btn color="grey darken-3" title="Cancel" :disabled="edit.isLoading" @click="handleCancelClick" icon>
@@ -61,7 +61,7 @@
 		<v-row>
 			<v-col>
 				<DialogDelete v-model="dialog.isVisible" :isLoading="dialog.isLoading" @confirm-click="handleConfirmClick">
-					Delete ingredient <strong>{{ (ingredients[dialog.index] || {}).name }}</strong> ?
+					Delete type <strong>{{ (types[dialog.index] || {}).name }}</strong> ?
 				</DialogDelete>
 			</v-col>
 		</v-row>
@@ -74,11 +74,11 @@ import RowSubheader from "@/components/RowSubheader"
 import DialogDelete from "@/components/DialogDelete"
 
 export default {
-	name: "Ingredient",
+	name: "Type",
 	components: { DialogDelete, RowSubheader },
 	data() {
 		return {
-			ingredients: [],
+			types: [],
 			add: {
 				name: "",
 				isLoading: false,
@@ -109,7 +109,7 @@ export default {
 			let data = await this.$fetcher({
 				toggle: value => (this.add.isLoading = value),
 				payload: {
-					query: "mutation($name: String!){ addIngredient(name: $name) { id name } }",
+					query: "mutation($name: String!){ addType(name: $name) { id name } }",
 					variables: {
 						name: this.add.name,
 					},
@@ -117,29 +117,29 @@ export default {
 			})
 
 			if (!data) return
-			this.ingredients.unshift(data.addIngredient)
-			this.$store.commit("showSnackbar", "Ingredient added")
+			this.types.unshift(data.addType)
+			this.$store.commit("showSnackbar", "Type added")
 			this.$refs.add.reset()
 		},
 		handleCancelClick() {
 			this.edit.index = null
 		},
 		async handleConfirmClick() {
-			let ingredient = this.ingredients[this.dialog.index]
+			let type = this.types[this.dialog.index]
 			let data = await this.$fetcher({
 				toggle: value => (this.dialog.isLoading = value),
 				payload: {
-					query: "mutation($id: Int!){ deleteIngredient(id: $id) }",
+					query: "mutation($id: Int!){ deleteType(id: $id) }",
 					variables: {
-						id: ingredient.id,
+						id: type.id,
 					},
 				},
 			})
 
 			this.dialog.isVisible = false
 			if (!data) return
-			this.ingredients.splice(this.dialog.index, 1)
-			this.$store.commit("showSnackbar", `Ingredient "${ingredient.name}" has been deleted!`)
+			this.types.splice(this.dialog.index, 1)
+			this.$store.commit("showSnackbar", `Type "${type.name}" has been deleted!`)
 		},
 		handleDeleteClick(index) {
 			this.dialog.index = index
@@ -147,30 +147,30 @@ export default {
 		},
 		handleEditClick(index) {
 			this.edit.index = index
-			this.edit.name = this.ingredients[index].name
+			this.edit.name = this.types[index].name
 		},
 		async handleEditSubmit() {
 			if (!this.$refs.edit[0].validate()) return
 
-			let ingredient = this.ingredients[this.edit.index]
+			let type = this.types[this.edit.index]
 			let data = await this.$fetcher({
 				toggle: value => (this.edit.isLoading = value),
 				payload: {
-					query: "mutation($id: Int!, $name: String!){ updateIngredient(id: $id, name: $name) { id name } }",
+					query: "mutation($id: Int!, $name: String!){ updateType(id: $id, name: $name) { id name } }",
 					variables: {
-						id: ingredient.id,
+						id: type.id,
 						name: this.edit.name,
 					},
 				},
 			})
 
 			if (!data) return
-			ingredient.name = data.updateIngredient.name
-			this.$store.commit("showSnackbar", "Ingredient updated")
+			type.name = data.updateType.name
+			this.$store.commit("showSnackbar", "Type updated")
 			this.handleCancelClick()
 		},
 		uniqueName(value) {
-			if (this.ingredients.some(ingredient => ingredient.name === value)) return "Ingredient name should be unique"
+			if (this.types.some(type => type.name === value)) return "Type name should be unique"
 			return true
 		},
 	},
@@ -178,7 +178,7 @@ export default {
 		this.$fetcher({
 			autofill: true,
 			payload: {
-				query: "{ ingredients { id name } }",
+				query: "{ types { id name } }",
 			},
 		})
 	},

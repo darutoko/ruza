@@ -1,37 +1,38 @@
 <template>
-  <v-layout>
-    <v-flex>
-      <router-view></router-view>
-    </v-flex>
-  </v-layout>
+	<router-view></router-view>
 </template>
 
 <script>
 export default {
-  name: "Food",
-  data() {
-    return {
-      //
-    };
-  },
-  mounted() {
-    this.$store.commit("setMenu", {
-      admin: [
-        {
-          title: "Добавить Блюдо",
-          to: { name: "food_dish" }
-        },
-        {
-          title: "Редактировать Виды",
-          to: { name: "food_type" }
-        },
-        {
-          title: "Редактировать Ингредиенты",
-          to: { name: "food_ingredient" }
-        }
+	name: "Food",
+	// components: {},
+	data() {
+		return {
+			//
+		}
+	},
+	// computed: {},
+	// watch: {},
+	// methods: {},
+	// created() {},
+	mounted() {
+		this.$store.commit("setMenu", {
+			admin: [
+				{
+					title: "Add Dish",
+					to: { name: "food_dish" },
+				},
+				{
+					title: "Edit Types",
+					to: { name: "food_type" },
+				},
+				{
+					title: "Edit Ingredients",
+					to: { name: "food_ingredient" },
+				},
 			],
-			user: []
-    });
-  }
-};
+			user: [],
+		})
+	},
+}
 </script>

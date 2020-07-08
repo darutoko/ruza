@@ -7,7 +7,7 @@ module.exports = {
 select
 	"type"."id",
 	"type"."name",
-	json_agg(json_build_object('id', "d"."id", 'name', "d"."name", 'ingredients', "d"."ingredients")) as "dishes"
+	json_agg(json_build_object('id', "d"."id", 'name', "d"."name", 'recipe', "d"."recipe", 'ingredients', "d"."ingredients")) as "dishes"
 from "type"
 join (
 	select
