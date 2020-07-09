@@ -1,14 +1,7 @@
 <template>
 	<v-form v-model="update.isValid" @submit.prevent="handleUpdateSubmit">
 		<v-container>
-			<v-row>
-				<v-col cols="auto">
-					<v-btn color="black" :to="{ name: 'shows_list' }" text><v-icon>mdi-arrow-left</v-icon> Go back</v-btn>
-				</v-col>
-				<v-col class="text-h5">
-					{{ show.title }}
-				</v-col>
-			</v-row>
+			<RowSubheader :to="{ name: 'shows_list' }">{{ show.title }}</RowSubheader>
 			<v-row>
 				<v-col>
 					<v-select v-model="update.season" :items="seasonsList" label="Season" required></v-select>
@@ -24,9 +17,11 @@
 </template>
 
 <script>
+import RowSubheader from "@/components/RowSubheader"
+
 export default {
 	name: "Show",
-	// components: {},
+	components: { RowSubheader },
 	data() {
 		return {
 			show: {},

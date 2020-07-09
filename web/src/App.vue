@@ -69,7 +69,9 @@ export default {
 			this.$store.commit("hideSnackbar")
 		},
 	},
-	// created() {},
+	created() {
+		this.$store.commit("initUser")
+	},
 	// mounted() {},
 }
 </script>

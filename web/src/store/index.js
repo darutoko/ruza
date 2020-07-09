@@ -44,16 +44,17 @@ export default new Vuex.Store({
 		hideIsLoading(state) {
 			state.isLoading = false
 		},
-		setUser_(state, token) {
-			let user = parseToken(token)
-
-			if (!Object.keys(user).length) return
-			if (Math.round(Date.now() / 1000) > user.exp) return
-
-			state.user = {
-				token,
-				username: user.username,
-				isAdmin: user.isAdmin,
+		initUser(state) {
+			let value = localStorage.getItem("user")
+			if (!value) return
+			try {
+				let user = JSON.parse(value)
+				let token = user.token.split(".")[1]
+				let data = JSON.parse(atob(token))
+				if (Math.round(Date.now() / 1000) > data.exp) throw new Error("Token expired")
+				state.user = user
+			} catch {
+				localStorage.removeItem("user")
 			}
 		},
 		setUser(state, payload) {
@@ -62,9 +63,11 @@ export default new Vuex.Store({
 				isAdmin: payload.login.isAdmin,
 				token: payload.token,
 			}
+			localStorage.setItem("user", JSON.stringify(state.user))
 		},
 		clearUser(state) {
 			state.user = {}
+			localStorage.removeItem("user")
 		},
 		setMenu(state, payload) {
 			state.menu.user = payload.user || []
@@ -74,18 +77,3 @@ export default new Vuex.Store({
 	actions: {},
 	modules: {},
 })
-
-function parseToken(payload) {
-	let user = {}
-	let token = (payload || "").split(".")[1]
-
-	if (!token) return user
-
-	try {
-		user = JSON.parse(atob(token))
-	} catch {
-		user = {}
-	}
-
-	return user
-}
