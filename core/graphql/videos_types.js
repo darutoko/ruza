@@ -1,13 +1,13 @@
-let { GraphQLNonNull, GraphQLBoolean, GraphQLString, GraphQLEnumType, GraphQLObjectType } = require("graphql");
+let { GraphQLNonNull, GraphQLBoolean, GraphQLString, GraphQLEnumType, GraphQLObjectType } = require("graphql")
 
 let directoryType = new GraphQLEnumType({
 	name: "Directory",
 	description: "Root directory to browse",
 	values: {
-		downloads: { value: "D:\\Download\\!Video\\" },
-		films: { value: "D:\\Video\\Films\\" },
-	}
-});
+		downloads: { value: "/mnt/Storage/Download/!Video/" },
+		films: { value: "/mnt/Storage/Video/Films/" },
+	},
+})
 
 let fileType = new GraphQLObjectType({
 	name: "File",
@@ -15,22 +15,22 @@ let fileType = new GraphQLObjectType({
 	fields: {
 		name: {
 			type: new GraphQLNonNull(GraphQLString),
-			description: "Name of a file"
+			description: "Name of a file",
 		},
 		isFile: {
 			type: new GraphQLNonNull(GraphQLBoolean),
-			description: "Is it file or some thing else"
-		}
-	}
-});
+			description: "Is it file or some thing else",
+		},
+	},
+})
 
 let serviceType = new GraphQLEnumType({
 	name: "Service",
 	description: "Availible straming services to watch",
 	values: {
 		twitch: { value: "twitch" },
-	}
-});
+	},
+})
 
 let streamType = new GraphQLObjectType({
 	name: "Stream",
@@ -38,18 +38,18 @@ let streamType = new GraphQLObjectType({
 	fields: {
 		name: {
 			type: new GraphQLNonNull(GraphQLString),
-			description: "Name of a stream"
+			description: "Name of a stream",
 		},
 		game: {
 			type: new GraphQLNonNull(GraphQLString),
-			description: "Name of a game"
+			description: "Name of a game",
 		},
 		status: {
 			type: new GraphQLNonNull(GraphQLString),
-			description: "Status of a stream"
+			description: "Status of a stream",
 		},
-	}
-});
+	},
+})
 
 module.exports = {
 	directoryType,

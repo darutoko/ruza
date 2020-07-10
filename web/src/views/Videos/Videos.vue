@@ -1,34 +1,32 @@
 <template>
-  <v-layout>
-    <v-flex>
-      <router-view></router-view>
-    </v-flex>
-  </v-layout>
+	<router-view></router-view>
 </template>
 
 <script>
 export default {
-  name: "Videos",
-  data() {
-    return {
-      //
-    };
-  },
-  mounted() {
-    this.$store.commit("setMenu", {
-      admin: [],
+	name: "Videos",
+	// components: {},
+	data() {
+		return {}
+	},
+	// computed: {}
+	// watch: {},
+	// methods: {}
+	// created() {},
+	mounted() {
+		this.$store.commit("setMenu", {
+			admin: [],
 			user: [
-        {
-          title: "Диск",
-          to: { name: "videos_disk" }
-        },
-        {
-          title: "Интернет",
-          to: { name: "videos_internet" }
-        },
-			]
-    });
-  }
-};
+				{
+					title: "Disk",
+					to: { name: "videos_disk" },
+				},
+				{
+					title: "Internet",
+					to: { name: "videos_internet" },
+				},
+			],
+		})
+	},
+}
 </script>
-
