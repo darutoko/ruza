@@ -29,10 +29,10 @@ export default {
 	data() {
 		return {
 			form: {
-				username: "admin",
-				password: "admin",
-				// username: "",
-				// password: "",
+				// username: "admin",
+				// password: "admin",
+				username: "",
+				password: "",
 				isLoading: false,
 				isValid: true,
 				rules: [textRequired],
