@@ -53,6 +53,40 @@ const routes = [
 		],
 	},
 	{
+		path: "/decks",
+		alias: "/",
+		component: () => import("@/views/Decks/Decks.vue"),
+		children: [
+			{
+				path: "",
+				name: "decks_list",
+				component: () => import("@/views/Decks/List.vue"),
+			},
+			{
+				path: "decks/:id/cards",
+				name: "decks_cards",
+				beforeEnter: adminOnly,
+				component: () => import("@/views/Decks/Cards.vue"),
+			},
+			{
+				path: "decks/:id/settings",
+				name: "decks_settings",
+				beforeEnter: adminOnly,
+				component: () => import("@/views/Decks/Settings.vue"),
+			},
+			{
+				path: "decks/:id/memorize",
+				name: "decks_memorize",
+				component: () => import("@/views/Decks/Memorize.vue"),
+			},
+			{
+				path: "decks/:id/test",
+				name: "decks_test",
+				component: () => import("@/views/Decks/Test.vue"),
+			},
+		],
+	},
+	{
 		path: "/videos",
 		component: () => import("@/views/Videos/Videos.vue"),
 		children: [

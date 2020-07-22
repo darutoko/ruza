@@ -3,6 +3,7 @@ let { GraphQLSchema, GraphQLObjectType, GraphQLNonNull, GraphQLBoolean, GraphQLS
 let foodSchema = require("./food_schema")
 let showsSchema = require("./shows_schema")
 let videosSchema = require("./videos_schema")
+let decksSchema = require("./decks_schema")
 
 let userType = new GraphQLObjectType({
 	name: "User",
@@ -26,6 +27,7 @@ module.exports = new GraphQLSchema({
 			...foodSchema.query,
 			...showsSchema.query,
 			...videosSchema.query,
+			...decksSchema.query,
 		},
 	}),
 	mutation: new GraphQLObjectType({
@@ -34,6 +36,7 @@ module.exports = new GraphQLSchema({
 			...foodSchema.mutation,
 			...showsSchema.mutation,
 			...videosSchema.mutation,
+			...decksSchema.mutation,
 
 			login: {
 				type: new GraphQLNonNull(userType),

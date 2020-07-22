@@ -31,6 +31,11 @@ export default {
 					route: { name: "food_list" },
 				},
 				{
+					icon: "mdi-animation", //ballot
+					title: "Flash Cards",
+					route: { name: "decks_list" },
+				},
+				{
 					icon: "mdi-youtube-tv",
 					title: "Video",
 					route: { name: "videos_disk" },

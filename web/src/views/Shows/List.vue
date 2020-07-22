@@ -24,7 +24,7 @@
 			<v-col>
 				<v-card v-for="(show, i) in shows" :key="show.id">
 					<v-hover v-slot:default="{ hover }">
-						<v-card-title class="blue darken-3 ">
+						<v-card-title class="blue darken-3">
 							<v-btn
 								v-if="!isAdmin && show.season && show.season.episodesTotal && show.season.episodesTotal === show.season.episodesAired"
 								color="green lighten-3"
