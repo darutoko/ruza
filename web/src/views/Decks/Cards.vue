@@ -97,8 +97,8 @@
 import { textRequired } from "@/utils/rules.js"
 import RowSubheader from "@/components/RowSubheader"
 import DialogDelete from "@/components/DialogDelete"
-import CardFormDefault from "@/components/CardFormDefault"
-import CardFormYaDi from "@/components/CardFormYaDi"
+import CardFormDefault from "./_components/CardFormDefault"
+import CardFormYaDi from "./_components/CardFormYaDi"
 
 export default {
 	name: "Cards",

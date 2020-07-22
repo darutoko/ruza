@@ -27,7 +27,7 @@
 
 <script>
 import { textRequired } from "@/utils/rules.js"
-import Deck from "@/components/Deck.vue"
+import Deck from "./_components/Deck"
 
 export default {
 	name: "List",

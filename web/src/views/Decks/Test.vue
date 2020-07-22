@@ -118,7 +118,7 @@ export default {
 		let data = await this.$fetcher({
 			payload: {
 				query:
-					"query($deckId: Int!, $limit: Int!, $subset: String!){ cardsSubset(deckId: $deckId, limit: $limit, subset: $subset) { id input front back } }",
+					"query($deckId: Int!, $limit: Int!, $subset: String!){ cardsSubset(deckId: $deckId, limit: $limit, subset: $subset) { id input front back testByFront } }",
 				variables: {
 					deckId: this.$route.params.id,
 					limit: this.$route.query.limit,
