@@ -27,6 +27,7 @@
 					placeholder="Input"
 					@keyup.enter="handleInput"
 					autocomplete="off"
+					:style="{ fontSize: '1.6em' }"
 					autofocus
 				></v-text-field>
 			</v-col>
