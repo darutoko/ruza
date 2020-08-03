@@ -12,6 +12,8 @@ let app = express()
 
 // app.use((req, res, next) => { setTimeout(() => next(), 1000) })
 // TODO:
+//  1. VLC
+//  2. Feeds: Video / Rss / etc
 
 app.use(bodyParser.json())
 
