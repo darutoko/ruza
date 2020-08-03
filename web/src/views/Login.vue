@@ -8,7 +8,7 @@
 			</v-row>
 			<v-row>
 				<v-col>
-					<v-text-field v-model.trim="form.password" label="Password" :rules="form.rules" required></v-text-field>
+					<v-text-field v-model.trim="form.password" label="Password" type="password" :rules="form.rules" required></v-text-field>
 				</v-col>
 			</v-row>
 			<v-row>
